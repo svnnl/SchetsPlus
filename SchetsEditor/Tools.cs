@@ -95,6 +95,16 @@ namespace SchetsEditor
         {   g.DrawRectangle(MaakPen(kwast,3), TweepuntTool.Punten2Rechthoek(p1, p2));
         }
     }
+
+    public class EllipsTool : RechthoekTool   // Drawing of circles
+    {
+        public override string ToString() { return "cirkel"; }
+
+        public override void Bezig(Graphics g, Point p1, Point p2)
+        {
+            g.DrawEllipse(MaakPen(kwast, 3), TweepuntTool.Punten2Rechthoek(p1, p2));
+        }
+    }
     
     public class VolRechthoekTool : RechthoekTool
     {
@@ -105,6 +115,16 @@ namespace SchetsEditor
         }
     }
 
+    public class VulEllipsTool : EllipsTool // Drawing of filled circles
+    {
+        public override string ToString() { return "vulcirkel"; }
+
+        public override void Compleet(Graphics g, Point p1, Point p2)
+        {
+            g.FillEllipse(kwast, TweepuntTool.Punten2Rechthoek(p1, p2));
+        }
+    }
+    
     public class LijnTool : TweepuntTool
     {
         public override string ToString() { return "lijn"; }
