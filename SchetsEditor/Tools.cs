@@ -98,7 +98,7 @@ namespace SchetsEditor
 
     public class EllipsTool : RechthoekTool   // Drawing of circles
     {
-        public override string ToString() { return "cirkel"; }
+        public override string ToString() { return "ellipse"; }
 
         public override void Bezig(Graphics g, Point p1, Point p2)
         {
@@ -117,7 +117,7 @@ namespace SchetsEditor
 
     public class VulEllipsTool : EllipsTool // Drawing of filled circles
     {
-        public override string ToString() { return "vulcirkel"; }
+        public override string ToString() { return "vulEllips"; }
 
         public override void Compleet(Graphics g, Point p1, Point p2)
         {

@@ -22,6 +22,7 @@ namespace SchetsEditor
         {   ToolStripDropDownItem menu;
             menu = new ToolStripMenuItem("File");
             menu.DropDownItems.Add("Nieuw", null, this.nieuw);
+            menu.DropDownItems.Add("Opslaan", null, this.opslaan);
             menu.DropDownItems.Add("Exit", null, this.afsluiten);
             menuStrip.Items.Add(menu);
         }
@@ -32,7 +33,7 @@ namespace SchetsEditor
             menuStrip.Items.Add(menu);
         }
         private void about(object o, EventArgs ea)
-        {   MessageBox.Show("Schets versie 1.0\n(c) UU Informatica 2010"
+        {   MessageBox.Show("Schets versie 1.1\n(c) UU Informatica 2010 & Sebastiaan, Gerwin 2014"
                            , "Over \"Schets\""
                            , MessageBoxButtons.OK
                            , MessageBoxIcon.Information
@@ -44,6 +45,12 @@ namespace SchetsEditor
             s.MdiParent = this;
             s.Show();
         }
+
+        private void opslaan(object sender, EventArgs e) // nog te schrijven
+        {
+            
+        }
+
         private void afsluiten(object sender, EventArgs e)
         {   this.Close();
         }
