@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace SchetsEditor
 {
@@ -12,6 +13,12 @@ namespace SchetsEditor
         {
             bitmap = new Bitmap(1, 1);
         }
+
+        public Bitmap Bitmap
+        {
+            get { return bitmap; }
+        }
+
         public Graphics BitmapGraphics
         {
             get { return Graphics.FromImage(bitmap); }

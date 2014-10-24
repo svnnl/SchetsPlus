@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Resources;
+using System.Drawing.Imaging;
 
 namespace SchetsEditor
 {
@@ -36,6 +37,11 @@ namespace SchetsEditor
             this.huidigeTool = (ISchetsTool)((RadioButton)obj).Tag;
         }
 
+        private void opslaan(object obj, EventArgs ea)
+        {
+            schetscontrol.Bitmap.Save("file.jpg", ImageFormat.Jpeg);
+        }
+
         private void afsluiten(object obj, EventArgs ea)
         {
             this.Close();
@@ -53,7 +59,8 @@ namespace SchetsEditor
                                     , new VulEllipsTool()
                                     };
             String[] deKleuren = { "Black", "Red", "Green", "Blue"
-                                 , "Yellow", "Magenta", "Cyan" 
+                                 , "Yellow", "Magenta", "Cyan" , "Brown"
+                                 , "Orange"
                                  };
 
             this.ClientSize = new Size(700, 500);
@@ -94,6 +101,7 @@ namespace SchetsEditor
         {   
             ToolStripMenuItem menu = new ToolStripMenuItem("File");
             menu.MergeAction = MergeAction.MatchOnly;
+            menu.DropDownItems.Add("Opslaan", null, this.opslaan);
             menu.DropDownItems.Add("Sluiten File", null, this.afsluiten);
             menuStrip.Items.Add(menu);
         }
