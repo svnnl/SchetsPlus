@@ -227,5 +227,13 @@ namespace SchetsEditor
 			return Wiskunde.isPuntInOvaal (klik, ovaal);
 		}
 	}
+
+	/*
+	 * TODO
+	 *  - Tekst
+	 *  - Normaal getekende lijn
+	 *     In het omliggende blok van de klik simpelweg alle
+	 *     pixels in een radius van klikMarge controleren.
+	 */
 }
 
