@@ -76,7 +76,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SchetsItem.cs" />
+    <Compile Include="SchetsItems.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Pen.png" />
