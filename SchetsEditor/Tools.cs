@@ -96,7 +96,7 @@ namespace SchetsEditor
         }
     }
 
-    public class EllipsTool : RechthoekTool   // Drawing of circles
+    public class EllipsTool : TweepuntTool   // Drawing of circles
     {
         public override string ToString() { return "ellipse"; }
 
