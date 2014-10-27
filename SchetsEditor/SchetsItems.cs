@@ -3,51 +3,42 @@ using System.Drawing;
 
 namespace SchetsEditor
 {
-	public interface ISchetsItem
-	{
-		void draw (Graphics g);
-
-		bool isGeklikt (Point klik);
-	}
-
-	public class OmlijndItem : ISchetsItem
+	public class SchetsbaarItem
 	{
 		// Marge die wordt aangehouden voor omlijnde items,
 		// binnen deze marge wordt een klik nog steeds
 		// geregistreerd.
-		protected const int klikMarge = 2;
+		//
+		protected const int KlikMarge = 2;
 
+		// Deze functie moet door de subklasse worden ge-
+		// implementeerd zodat die zich tekent op g.
+		//
+		public abstract void draw (Graphics g);
+
+		// Deze functie moet door de subklasse worden ge-
+		// implementeerd zodat die een bool teruggeeft die
+		// aangeeft of het gegeven punt 'raak' is.
+		//
+		public abstract bool isGeklikt (Point klik);
+	}
+
+	public class OmlijndItem : SchetsbaarItem
+	{
 		public Pen lijn { get; protected set; }
 	}
 
-	public class GevuldItem
+	public class GevuldItem : SchetsbaarItem
 	{
 		public Brush vulling { get; protected set; }
 	}
 
-	public class RechthoekigItem
+	public class RechthoekigItem : SchetsbaarItem
 	{
-		public static Rectangle maakRectangleVanPunten (Point p1, Point p2)
-		{
-			return new Rectangle (
-				p1.X,
-				p2.Y,
-				p2.X - p1.X,
-				p2.Y - p1.Y);
-		}
-
-		public static Rectangle vergrootRechthoek (Rectangle r, int d)
-		{
-			return new Rectangle (
-				r.Left + d, r.Top + d,
-				r.Width + d, r.Height + d
-			);
-		}
-
 		public Rectangle rechthoek { get; protected set; }
 	}
 
-	public class OvaalItem
+	public class OvaalItem : SchetsbaarItem
 	{
 		public Rectangle ovaal { get; protected set; }
 	}
@@ -67,20 +58,51 @@ namespace SchetsEditor
 			g.DrawLine (lijn, punt1, punt2);
 		}
 
-		public Boolean isGeklikt (Point klik)
+		public bool isGeklikt (Point klik)
 		{
-			double verhoudingP1P2
-				= Math.Abs (punt1.X - punt2.X) / Math.Abs (punt1.Y - punt2.Y);
-			double verhoudingP1Klik
-				= Math.Abs (punt1.X - klik.X) - Math.Abs (punt1.Y - klik.Y);
+			// Als de afstand van klik tot de lijn lager
+			// is dan de klikmarge --> raak!
+			return (afstandTotPunt (klik) < KlikMarge);
+		}
 
-			// TODO bereken verhoudingMarge
-			double verhoudingMarge = 1.0;
+		// Berekent de afstand tussen het punt p en
+		// de lijn tussen punt1 en punt2.
+		//
+		private double afstandTotPunt (Point p)
+		{
+			// Afstand tussen de twee punten van de lijn,
+			// in het kwadraat ...
+			const double dp1p2
+				= Math.Pow (punt1 - punt2);
 
-			// Als het verschil tussen de verhouding van p1-p2 en p1-klik
-			// minder is dan de acceptabele marge, is de klik geregistreerd.
-			return 	(verhoudingP1Klik > verhoudingP1P2 - verhoudingMarge) &&
-					(verhoudingP1Klik < verhoudingP1P2 + verhoudingMarge);
+			if (dp1p2 == 0.0) {
+				// Deze lijn is een punt, dus de afstand
+				// is makkelijk te berekenen ...
+				return Wiskunde.afstand (p, punt1);
+			}
+
+			// Geeft indicatie van positie van P ten overstaande
+			// van de lijn.
+			const double indicatie
+				= Wiskunde.dot2 (p - punt1, punt2 - punt1);
+
+			if (indicatie < 0.0) {
+				// P zit aan deze zijde van het lijnsegment,
+				// afstand is als volgt:
+				return Wiskunde.afstand (p, punt1);
+			} else if (indicatie > 1.0) {
+				// P zit aan de andere zijde, afstand:
+				return Wiskunde.afstand (p, punt2);
+			} else {
+				// P ligt ongeveer op de lijn, de afstand
+				// is de afstand tussen punt p en zijn projectie
+				// op de lijn tussen p1 en p2. (Zie hier hoe C#
+				// wiskunde met vectoren doet!)
+				Point projectie
+					= punt1 + indicatie * (punt2 - punt1);
+
+				return Wiskunde.afstand (p, projectie);
+			}
 		}
 	}
 		
@@ -110,30 +132,20 @@ namespace SchetsEditor
 			// binnen rechthoek #2 valt de klik binnen de marge.
 
 			Rectangle groter =
-				RechthoekigItem.vergrootRechthoek (rechthoek,
-					klikMarge);
+				Wiskunde.vergrootRechthoek (rechthoek,
+											KlikMarge);
 
 			Rectangle kleiner =
-				RechthoekigItem.vergrootRechthoek (rechthoek,
-					-klikMarge);
+				Wiskunde.vergrootRechthoek (rechthoek,
+											-KlikMarge);
 
-			return (GevuldRechthoek.isPuntInRechthoek (klik, groter) &&
-					!GevuldRechthoek.isPuntInRechthoek (klik, kleiner));
+			return (Wiskunde.isPuntInRechthoek (klik, groter) &&
+					!Wiskunde.isPuntInRechthoek (klik, kleiner));
 		}
 	}
 
 	public class GevuldRechthoek : RechthoekigItem, GevuldItem
 	{
-		public static bool isPuntInRechthoek (Point p, Rectangle rechthoek)
-		{
-			// Simpele berekening die uitwijst of punt 'p'
-			// binnen in rechthoek ligt.
-			return (p.X > rechthoek.Left &&
-					p.X < rechthoek.Right &&
-					p.Y > rechthoek.Top &&
-					p.Y < rechthoek.Bottom);
-		}
-
 		public GevuldRechthoek (Rectangle rect, Brush brush)
 		{
 			rechthoek = rect; vulling = brush;
@@ -146,7 +158,7 @@ namespace SchetsEditor
 						
 		public bool isGeklikt (Point klik)
 		{
-			return isPuntInRechthoek (klik, rechthoek);
+			return Wiskunde.isPuntInRechthoek (klik, rechthoek);
 		}
 	}
 
@@ -175,46 +187,20 @@ namespace SchetsEditor
 			// binnen ovaal #2 valt de klik binnen de marge.
 
 			Rectangle groter =
-				RechthoekigItem.vergrootRechthoek (ovaal,
-												 klikMarge);
+				Wiskunde.vergrootRechthoek (ovaal,
+											KlikMarge);
 
 			Rectangle kleiner =
-				RechthoekigItem.vergrootRechthoek (ovaal,
-												 -klikMarge);
+				Wiskunde.vergrootRechthoek (ovaal,
+											-KlikMarge);
 					
-			return (GevuldOvaal.isPuntInOvaal (klik, groter) &&
-					!GevuldOvaal.isPuntInOvaal (klik, kleiner));
+			return (Wiskunde.isPuntInOvaal (klik, groter) &&
+					!Wiskunde.isPuntInOvaal (klik, kleiner));
 		}
 	}
 
 	public class GevuldOvaal : OvaalItem, GevuldItem
 	{
-		public static void isPuntInOvaal (Point p, Rectangle ovaal)
-		{
-			// Ja, als de volgende vergelijking waar is:
-			//
-			// (x - h)^2     (y - k)^2
-			// ---------  +  ---------  <= 1
-			//    w^2           h^2
-			//
-			// waarbij
-			// 	- (x, y) = punt om te testen
-			//  - (h, k) = middelpunt ovaal
-			//  - w		 = breedte bounding rechthoek
-			//  - h		 = hoogte bounding rechthoek
-			//
-
-			// Bereken middelpunt
-			Point mp = new Point (
-				(ovaal.Left + ovaal.Right) / 2,
-				(ovaal.Top + ovaal.Bottom) / 2
-			);
-
-			return  ( (Math.Pow (p.X - mp.X, 2) / Math.Pow (ovaal.Width, 2)  ) +
-					  (Math.Pow (p.Y - mp.Y, 2) / Math.Pow (ovaal.Height, 2) )
-					) <= 1;
-		}
-
 		public GevuldOvaal (Rectangle rect, Brush brush)
 		{
 			ovaal = rect; vulling = brush;
@@ -227,7 +213,7 @@ namespace SchetsEditor
 
 		public bool isGeklikt (Point klik)
 		{
-			return isPuntInOvaal (klik, ovaal);
+			return Wiskunde.isPuntInOvaal (klik, ovaal);
 		}
 	}
 }
