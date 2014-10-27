@@ -10,11 +10,12 @@ namespace SchetsEditor
 {
 	public class SchetsWin : Form
 	{
-		MenuStrip menuStrip;
-		SchetsControl schetscontrol;
-		ISchetsTool huidigeTool;
-		Panel paneel;
-		bool vast;
+		MenuStrip 		menuStrip;
+		SchetsControl 	schetscontrol;
+		ISchetsTool 	huidigeTool;
+		Panel 			paneel;
+		bool 			vast;
+
 		ResourceManager resourcemanager
             = new ResourceManager (	"SchetsEditor.Properties.Resources",
 									Assembly.GetExecutingAssembly ());
@@ -57,6 +58,7 @@ namespace SchetsEditor
                                     , new EllipsTool ()
                                     , new VulEllipsTool ()
 			};
+
 			String[] deKleuren = { "Black", "Red", "Green", "Blue"
                                  , "Yellow", "Magenta", "Cyan", "Brown"
                                  , "Orange"
@@ -71,17 +73,24 @@ namespace SchetsEditor
 				vast = true;  
 				huidigeTool.MuisVast (schetscontrol, mea.Location); 
 			};
-			schetscontrol.MouseMove += (object o, MouseEventArgs mea) => {
-				if (vast)
-					huidigeTool.MuisDrag (schetscontrol, mea.Location); 
-			};
-			schetscontrol.MouseUp += (object o, MouseEventArgs mea) => {
-				vast = false; 
-				huidigeTool.MuisLos (schetscontrol, mea.Location); 
-			};
-			schetscontrol.KeyPress += (object o, KeyPressEventArgs kpea) => {
-				huidigeTool.Letter (schetscontrol, kpea.KeyChar); 
-			};
+
+			schetscontrol.MouseMove +=
+				(object o, MouseEventArgs mea) => {
+					if (vast)
+						huidigeTool.MuisDrag (schetscontrol, mea.Location); 
+				};
+
+			schetscontrol.MouseUp +=
+				(object o, MouseEventArgs mea) => {
+					vast = false; 
+					huidigeTool.MuisLos (schetscontrol, mea.Location); 
+				};
+
+			schetscontrol.KeyPress +=
+				(object o, KeyPressEventArgs kpea) => {
+					huidigeTool.Letter (schetscontrol, kpea.KeyChar); 
+				};
+
 			this.Controls.Add (schetscontrol);
 
 			menuStrip = new MenuStrip ();
