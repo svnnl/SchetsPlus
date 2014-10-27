@@ -31,6 +31,26 @@ namespace SchetsEditor
 			);
 		}
 
+		/*
+		 * Een aantal veelvoorkomende wiskunde operaties
+		 * voor Punten geimplementeerd.cvvc
+		 */
+
+		public static Point pplus (Point p1, Point p2)
+		{
+			return new Point (p1.X - p2.X, p1.Y - p2.Y);
+		}
+
+		public static Point pmin (Point p1, Point p2)
+		{
+			return pplus (p1, new Point (-p2.X, -p2.Y));
+		}
+
+		public static Point pabs (Point p)
+		{
+			return new Point (Math.Abs (p.X), Math.Abs (p.Y));
+		}
+
 		// Transformeert twee punten in een Rectangle
 		// waarvan de twee punten tegenoverstaande hoek-
 		// punten zijn.
@@ -62,15 +82,15 @@ namespace SchetsEditor
 			// Simpele berekening die uitwijst of punt 'p'
 			// binnen in rechthoek ligt.
 			return (p.X > rechthoek.Left &&
-				p.X < rechthoek.Right &&
-				p.Y > rechthoek.Top &&
-				p.Y < rechthoek.Bottom);
+					p.X < rechthoek.Right &&
+					p.Y > rechthoek.Top &&
+					p.Y < rechthoek.Bottom);
 		}
 
 		// Geeft aan of punt p binnen het gegeven ovaal
 		// ligt.
 		//
-		public static void isPuntInOvaal (Point p, Rectangle ovaal)
+		public static bool isPuntInOvaal (Point p, Rectangle ovaal)
 		{
 			// Ja, als de volgende vergelijking waar is:
 			//
@@ -92,8 +112,8 @@ namespace SchetsEditor
 			);
 
 			return  ( (Math.Pow (p.X - mp.X, 2) / Math.Pow (ovaal.Width, 2)  ) +
-				(Math.Pow (p.Y - mp.Y, 2) / Math.Pow (ovaal.Height, 2) )
-			) <= 1;
+					  (Math.Pow (p.Y - mp.Y, 2) / Math.Pow (ovaal.Height, 2) )
+					) <= 1;
 		}
 	}
 }

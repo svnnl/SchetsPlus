@@ -41,6 +41,7 @@ namespace SchetsEditor
 
 		public override void MuisDrag (SchetsControl s, Point p)
 		{
+
 		}
 
 		public override void Letter (SchetsControl s, char c)
