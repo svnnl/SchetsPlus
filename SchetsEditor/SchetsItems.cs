@@ -12,6 +12,11 @@ namespace SchetsEditor
 
 	public class OmlijndItem : ISchetsItem
 	{
+		// Marge die wordt aangehouden voor omlijnde items,
+		// binnen deze marge wordt een klik nog steeds
+		// geregistreerd.
+		protected const int klikMarge = 2;
+
 		public Pen lijn { get; protected set; }
 	}
 
@@ -20,9 +25,26 @@ namespace SchetsEditor
 		public Brush vulling { get; protected set; }
 	}
 
-	public class VierhoekigItem
+	public class RechthoekigItem
 	{
-		public Rectangle vierhoek { get; protected set; }
+		public static Rectangle maakRectangleVanPunten (Point p1, Point p2)
+		{
+			return new Rectangle (
+				p1.X,
+				p2.Y,
+				p2.X - p1.X,
+				p2.Y - p1.Y);
+		}
+
+		public static Rectangle vergrootRechthoek (Rectangle r, int d)
+		{
+			return new Rectangle (
+				r.Left + d, r.Top + d,
+				r.Width + d, r.Height + d
+			);
+		}
+
+		public Rectangle rechthoek { get; protected set; }
 	}
 
 	public class OvaalItem
@@ -62,52 +84,69 @@ namespace SchetsEditor
 		}
 	}
 		
-	public class OmlijndeVierhoek : VierhoekigItem, OmlijndItem
+	public class OmlijndeRechthoek : RechthoekigItem, OmlijndItem
 	{
-		public static Rectangle maakRectangleVanPunten (Point p1, Point p2)
-		{
-			return new Rectangle (
-				p1.X,
-				p2.Y,
-				p2.X - p1.X,
-				p2.Y - p1.Y);
-		}
 
-		public OmlijndeVierhoek (Rectangle rect, Pen pen)
+		public OmlijndeRechthoek (Rectangle rect, Pen pen)
 		{
-			vierhoek = rect; lijn = pen;
+			rechthoek = rect; lijn = pen;
 		}
 
 		public void draw (Graphics g)
 		{
-			g.DrawRectangle (lijn, vierhoek);
+			g.DrawRectangle (lijn, rechthoek);
 		}
 
 		public void isGeklikt (Point klik)
 		{
-			// TODO
-			throw new NotImplementedException ();
+			// Om dit te berekenen gebruiken we de volgende methode:
+			// We gebruiken twee extra rechthoeken, waarvan:
+			// 	rechthoek #1 ->  Is gelijk aan het origineel maar met de marge
+			//					opgeteld aan alle zijdes,
+			//  rechthoek #2 ->  Is gelijk aan het origineel maar met de marge
+			//					afgetrokken aan alle zijdes.
+			//
+			// Wanneer de klik _wel_ binnen rechthoek #1 ligt, maar _niet_
+			// binnen rechthoek #2 valt de klik binnen de marge.
+
+			Rectangle groter =
+				RechthoekigItem.vergrootRechthoek (rechthoek,
+					klikMarge);
+
+			Rectangle kleiner =
+				RechthoekigItem.vergrootRechthoek (rechthoek,
+					-klikMarge);
+
+			return (GevuldRechthoek.isPuntInRechthoek (klik, groter) &&
+					!GevuldRechthoek.isPuntInRechthoek (klik, kleiner));
 		}
 	}
 
-	public class GevuldVierhoek : VierhoekigItem, GevuldItem
+	public class GevuldRechthoek : RechthoekigItem, GevuldItem
 	{
-		public GevuldVierhoek (Rectangle rect, Brush brush)
+		public static bool isPuntInRechthoek (Point p, Rectangle rechthoek)
 		{
-			vierhoek = rect; vulling = brush;
+			// Simpele berekening die uitwijst of punt 'p'
+			// binnen in rechthoek ligt.
+			return (p.X > rechthoek.Left &&
+					p.X < rechthoek.Right &&
+					p.Y > rechthoek.Top &&
+					p.Y < rechthoek.Bottom);
+		}
+
+		public GevuldRechthoek (Rectangle rect, Brush brush)
+		{
+			rechthoek = rect; vulling = brush;
 		}
 
 		public void draw (Graphics g)
 		{
-			g.FillRectangle (vierhoek);
+			g.FillRectangle (rechthoek);
 		}
 						
 		public bool isGeklikt (Point klik)
 		{
-			return (klik.X > vierhoek.Left &&
-				klik.X < vierhoek.Right &&
-				klik.Y > vierhoek.Top &&
-				klik.Y < vierhoek.Bottom);
+			return isPuntInRechthoek (klik, rechthoek);
 		}
 	}
 
@@ -125,13 +164,57 @@ namespace SchetsEditor
 
 		public bool isGeklikt (Point klik)
 		{
-			// TODO
-			throw new NotImplementedException ();
+			// Om dit te berekenen gebruiken we de volgende methode:
+			// We gebruiken twee extra ovalen, waarvan:
+			// 	Ovaal #1 -> Is gelijk aan het origineel maar met de marge
+			//				opgeteld aan alle zijdes,
+			//  Ovaal #2 -> Is gelijk aan het origineel maar met de marge
+			//				afgetrokken aan alle zijdes.
+			//
+			// Wanneer de klik _wel_ binnen ovaal #1 ligt, maar _niet_
+			// binnen ovaal #2 valt de klik binnen de marge.
+
+			Rectangle groter =
+				RechthoekigItem.vergrootRechthoek (ovaal,
+												 klikMarge);
+
+			Rectangle kleiner =
+				RechthoekigItem.vergrootRechthoek (ovaal,
+												 -klikMarge);
+					
+			return (GevuldOvaal.isPuntInOvaal (klik, groter) &&
+					!GevuldOvaal.isPuntInOvaal (klik, kleiner));
 		}
 	}
 
 	public class GevuldOvaal : OvaalItem, GevuldItem
 	{
+		public static void isPuntInOvaal (Point p, Rectangle ovaal)
+		{
+			// Ja, als de volgende vergelijking waar is:
+			//
+			// (x - h)^2     (y - k)^2
+			// ---------  +  ---------  <= 1
+			//    w^2           h^2
+			//
+			// waarbij
+			// 	- (x, y) = punt om te testen
+			//  - (h, k) = middelpunt ovaal
+			//  - w		 = breedte bounding rechthoek
+			//  - h		 = hoogte bounding rechthoek
+			//
+
+			// Bereken middelpunt
+			Point mp = new Point (
+				(ovaal.Left + ovaal.Right) / 2,
+				(ovaal.Top + ovaal.Bottom) / 2
+			);
+
+			return  ( (Math.Pow (p.X - mp.X, 2) / Math.Pow (ovaal.Width, 2)  ) +
+					  (Math.Pow (p.Y - mp.Y, 2) / Math.Pow (ovaal.Height, 2) )
+					) <= 1;
+		}
+
 		public GevuldOvaal (Rectangle rect, Brush brush)
 		{
 			ovaal = rect; vulling = brush;
@@ -144,19 +227,7 @@ namespace SchetsEditor
 
 		public bool isGeklikt (Point klik)
 		{
-			Point middelpunt = new Point (
-				(ovaal.Left + ovaal.Right) / 2,
-				(ovaal.Top + ovaal.Bottom) / 2
-			);
-
-			int afstand = Math.Sqrt (
-				Math.Pow (Math.Abs (klik.X - middelpunt.X)),
-				Math.Pow (Math.Abs (klik.Y - middelpunt.Y))
-			);
-
-			// ... TODO
-
-			throw new NotImplementedException ();
+			return isPuntInOvaal (klik, ovaal);
 		}
 	}
 }
