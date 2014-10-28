@@ -16,14 +16,14 @@ namespace SchetsEditor
 		//
 		// In deze implementatie: n == 2
 		//
-		public static double dot2 (Point p1, Point p2)
+		public static double Dot2 (Point p1, Point p2)
 		{
 			return (p1.X * p2.X) + (p1.Y * p2.Y);
 		}
 
 		// Berekent de afstand tussen p1 en p2
 		//
-		public static double afstand (Point p1, Point p2)
+		public static double Afstand (Point p1, Point p2)
 		{
 			return Math.Sqrt (
 				Math.Pow (Math.Abs (p1.X - p2.X), 2) +
@@ -36,17 +36,17 @@ namespace SchetsEditor
 		 * voor Punten geimplementeerd.cvvc
 		 */
 
-		public static Point pplus (Point p1, Point p2)
+		public static Point PuntPlus (Point p1, Point p2)
 		{
 			return new Point (p1.X - p2.X, p1.Y - p2.Y);
 		}
 
-		public static Point pmin (Point p1, Point p2)
+		public static Point PuntMin (Point p1, Point p2)
 		{
-			return pplus (p1, new Point (-p2.X, -p2.Y));
+			return PuntPlus (p1, new Point (-p2.X, -p2.Y));
 		}
 
-		public static Point pabs (Point p)
+		public static Point PuntAbs (Point p)
 		{
 			return new Point (Math.Abs (p.X), Math.Abs (p.Y));
 		}
@@ -55,7 +55,7 @@ namespace SchetsEditor
 		// waarvan de twee punten tegenoverstaande hoek-
 		// punten zijn.
 		//
-		public static Rectangle maakRectangleVanPunten (Point p1, Point p2)
+		public static Rectangle MaakRectangleVanPunten (Point p1, Point p2)
 		{
 			return new Rectangle (
 				p1.X,
@@ -67,7 +67,7 @@ namespace SchetsEditor
 		// Past de coordinaten van de zijdes van rechthoek
 		// r aan met waarde d.
 		//
-		public static Rectangle vergrootRechthoek (Rectangle r, int d)
+		public static Rectangle VergrootRechthoek (Rectangle r, int d)
 		{
 			return new Rectangle (
 				r.Left + d, r.Top + d,
@@ -77,7 +77,7 @@ namespace SchetsEditor
 
 		// Geeft aan of punt p binnen het rechthoek ligt.
 		//
-		public static bool isPuntInRechthoek (Point p, Rectangle rechthoek)
+		public static bool IsPuntInRechthoek (Point p, Rectangle rechthoek)
 		{
 			// Simpele berekening die uitwijst of punt 'p'
 			// binnen in rechthoek ligt.
@@ -90,7 +90,7 @@ namespace SchetsEditor
 		// Geeft aan of punt p binnen het gegeven ovaal
 		// ligt.
 		//
-		public static bool isPuntInOvaal (Point p, Rectangle ovaal)
+		public static bool IsPuntInOvaal (Point p, Rectangle ovaal)
 		{
 			// Ja, als de volgende vergelijking waar is:
 			//

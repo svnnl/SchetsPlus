@@ -9,18 +9,18 @@ namespace SchetsEditor
 		// binnen deze marge wordt een klik nog steeds
 		// geregistreerd.
 		//
-		protected const int KlikMarge = 2;
+		protected const int klikMarge = 2;
 
 		// Deze functie moet door de subklasse worden ge-
 		// implementeerd zodat die zich tekent op g.
 		//
-		public abstract void draw (Graphics g);
+		public abstract void Teken (Graphics g);
 
 		// Deze functie moet door de subklasse worden ge-
 		// implementeerd zodat die een bool teruggeeft die
 		// aangeeft of het gegeven punt 'raak' is.
 		//
-		public abstract bool isGeklikt (Point klik);
+		public abstract bool IsGeklikt (Point klik);
 	}
 		
 	public abstract class RechthoekigItem : SchetsbaarItem
@@ -45,22 +45,22 @@ namespace SchetsEditor
 			punt1 = p1; punt2 = p2; lijn = pen;
 		}
 
-		public override void draw (Graphics g)
+		public override void Teken (Graphics g)
 		{
 			g.DrawLine (lijn, punt1, punt2);
 		}
 
-		public override bool isGeklikt (Point klik)
+		public override bool IsGeklikt (Point klik)
 		{
 			// Als de afstand van klik tot de lijn lager
 			// is dan de klikmarge --> raak!
-			return (afstandTotPunt (klik) < KlikMarge);
+			return (AfstandTotPunt (klik) < klikMarge);
 		}
 
 		// Berekent de afstand tussen het punt p en
 		// de lijn tussen punt1 en punt2.
 		//
-		private double afstandTotPunt (Point p)
+		private double AfstandTotPunt (Point p)
 		{
 			// Afstand tussen de twee punten van de lijn,
 			// in het kwadraat ...
@@ -72,25 +72,25 @@ namespace SchetsEditor
 			{
 				// Deze lijn is een punt, dus de afstand
 				// is makkelijk te berekenen ...
-				return Wiskunde.afstand (p, punt1);
+				return Wiskunde.Afstand (p, punt1);
 			}
 
 			// Geeft indicatie van positie van P ten overstaande
 			// van de lijn.
 			double indicatie
-				= Wiskunde.dot2 (Wiskunde.pmin (p, punt1),
-								 Wiskunde.pmin (punt2, punt1));
+				= Wiskunde.Dot2 (Wiskunde.PuntMin (p, punt1),
+								 Wiskunde.PuntMin (punt2, punt1));
 
 			if (indicatie < 0.0)
 			{
 				// P zit aan deze zijde van het lijnsegment,
 				// afstand is als volgt:
-				return Wiskunde.afstand (p, punt1);
+				return Wiskunde.Afstand (p, punt1);
 			}
 			else if (indicatie > 1.0)
 			{
 				// P zit aan de andere zijde, afstand:
-				return Wiskunde.afstand (p, punt2);
+				return Wiskunde.Afstand (p, punt2);
 			}
 			else
 			{
@@ -105,7 +105,7 @@ namespace SchetsEditor
 					(int) (punt1.Y + indicatie * (punt2.Y - punt1.Y))
 				);
 
-				return Wiskunde.afstand (p, projectie);
+				return Wiskunde.Afstand (p, projectie);
 			}
 		}
 	}
@@ -119,12 +119,12 @@ namespace SchetsEditor
 			rechthoek = rect; lijn = pen;
 		}
 
-		public override void draw (Graphics g)
+		public override void Teken (Graphics g)
 		{
 			g.DrawRectangle (lijn, rechthoek);
 		}
 
-		public override bool isGeklikt (Point klik)
+		public override bool IsGeklikt (Point klik)
 		{
 			// Om dit te berekenen gebruiken we de volgende methode:
 			// We gebruiken twee extra rechthoeken, waarvan:
@@ -137,15 +137,15 @@ namespace SchetsEditor
 			// binnen rechthoek #2 valt de klik binnen de marge.
 
 			Rectangle groter =
-				Wiskunde.vergrootRechthoek (rechthoek,
-											KlikMarge);
+				Wiskunde.VergrootRechthoek (rechthoek,
+											klikMarge);
 
 			Rectangle kleiner =
-				Wiskunde.vergrootRechthoek (rechthoek,
-											-KlikMarge);
+				Wiskunde.VergrootRechthoek (rechthoek,
+											-klikMarge);
 
-			return (Wiskunde.isPuntInRechthoek (klik, groter) &&
-					!Wiskunde.isPuntInRechthoek (klik, kleiner));
+			return (Wiskunde.IsPuntInRechthoek (klik, groter) &&
+					!Wiskunde.IsPuntInRechthoek (klik, kleiner));
 		}
 	}
 
@@ -158,14 +158,14 @@ namespace SchetsEditor
 			rechthoek = rect; vulling = brush;
 		}
 
-		public override void draw (Graphics g)
+		public override void Teken (Graphics g)
 		{
 			g.FillRectangle (vulling, rechthoek);
 		}
 						
-		public override bool isGeklikt (Point klik)
+		public override bool IsGeklikt (Point klik)
 		{
-			return Wiskunde.isPuntInRechthoek (klik, rechthoek);
+			return Wiskunde.IsPuntInRechthoek (klik, rechthoek);
 		}
 	}
 
@@ -178,12 +178,12 @@ namespace SchetsEditor
 			ovaal = rect; lijn = pen;
 		}
 
-		public override void draw (Graphics g)
+		public override void Teken (Graphics g)
 		{
 			g.DrawEllipse (lijn, ovaal);
 		}
 
-		public override bool isGeklikt (Point klik)
+		public override bool IsGeklikt (Point klik)
 		{
 			// Om dit te berekenen gebruiken we de volgende methode:
 			// We gebruiken twee extra ovalen, waarvan:
@@ -196,15 +196,15 @@ namespace SchetsEditor
 			// binnen ovaal #2 valt de klik binnen de marge.
 
 			Rectangle groter =
-				Wiskunde.vergrootRechthoek (ovaal,
-											KlikMarge);
+				Wiskunde.VergrootRechthoek (ovaal,
+											klikMarge);
 
 			Rectangle kleiner =
-				Wiskunde.vergrootRechthoek (ovaal,
-											-KlikMarge);
+				Wiskunde.VergrootRechthoek (ovaal,
+											-klikMarge);
 					
-			return (Wiskunde.isPuntInOvaal (klik, groter) &&
-					!Wiskunde.isPuntInOvaal (klik, kleiner));
+			return (Wiskunde.IsPuntInOvaal (klik, groter) &&
+					!Wiskunde.IsPuntInOvaal (klik, kleiner));
 		}
 	}
 
@@ -217,14 +217,14 @@ namespace SchetsEditor
 			ovaal = rect; vulling = brush;
 		}
 
-		public override void draw (Graphics g)
+		public override void Teken (Graphics g)
 		{
 			g.FillEllipse (vulling, ovaal);
 		}
 
-		public override bool isGeklikt (Point klik)
+		public override bool IsGeklikt (Point klik)
 		{
-			return Wiskunde.isPuntInOvaal (klik, ovaal);
+			return Wiskunde.IsPuntInOvaal (klik, ovaal);
 		}
 	}
 

@@ -24,6 +24,7 @@ namespace SchetsEditor
 		{
 			schetscontrol.Size = new Size (this.ClientSize.Width - 70,
                                            this.ClientSize.Height - 50);
+
 			paneel.Location = new Point (64, this.ClientSize.Height - 30);
 		}
 
@@ -95,6 +96,7 @@ namespace SchetsEditor
 
 			menuStrip = new MenuStrip ();
 			menuStrip.Visible = false;
+
 			this.Controls.Add (menuStrip);
 			this.maakFileMenu ();
 			this.maakToolMenu (deTools);
@@ -111,13 +113,15 @@ namespace SchetsEditor
 			menu.MergeAction = MergeAction.MatchOnly;
 			menu.DropDownItems.Add ("Opslaan", null, this.opslaan);
 			menu.DropDownItems.Add ("Sluiten File", null, this.afsluiten);
+
 			menuStrip.Items.Add (menu);
 		}
 
 		private void maakToolMenu (ICollection<ISchetsTool> tools)
 		{   
 			ToolStripMenuItem menu = new ToolStripMenuItem ("Tool");
-			foreach (ISchetsTool tool in tools) {
+			foreach (ISchetsTool tool in tools)
+			{
 				ToolStripItem item = new ToolStripMenuItem ();
 				item.Tag = tool;
 				item.Text = tool.ToString ();
@@ -125,6 +129,7 @@ namespace SchetsEditor
 				item.Click += this.klikToolMenu;
 				menu.DropDownItems.Add (item);
 			}
+
 			menuStrip.Items.Add (menu);
 		}
 
@@ -133,17 +138,20 @@ namespace SchetsEditor
 			ToolStripMenuItem menu = new ToolStripMenuItem ("Aktie");
 			menu.DropDownItems.Add ("Clear", null, schetscontrol.Schoon);
 			menu.DropDownItems.Add ("Roteer", null, schetscontrol.Roteer);
+
 			ToolStripMenuItem submenu = new ToolStripMenuItem ("Kies kleur");
 			foreach (string k in kleuren)
 				submenu.DropDownItems.Add (k, null, schetscontrol.VeranderKleurViaMenu);
 			menu.DropDownItems.Add (submenu);
+
 			menuStrip.Items.Add (menu);
 		}
 
 		private void maakToolButtons (ICollection<ISchetsTool> tools)
 		{
 			int t = 0;
-			foreach (ISchetsTool tool in tools) {
+			foreach (ISchetsTool tool in tools)
+			{
 				RadioButton b = new RadioButton ();
 				b.Appearance = Appearance.Button;
 				b.Size = new Size (45, 62);
@@ -170,6 +178,7 @@ namespace SchetsEditor
 			Button b;
 			Label l;
 			ComboBox cbb;
+
 			b = new Button (); 
 			b.Text = "Clear";  
 			b.Location = new Point (0, 0); 

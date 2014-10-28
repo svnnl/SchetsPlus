@@ -36,12 +36,13 @@ namespace SchetsEditor
 			this.Invalidate ();
 		}
 
-		public Graphics MaakBitmapGraphics ()
-		{
-			Graphics g = schets.BitmapGraphics;
-			g.SmoothingMode = SmoothingMode.AntiAlias;
-			return g;
-		}
+		//public Graphics MaakBitmapGraphics ()
+		//{
+		//	Graphics g = schets.BitmapGraphics;
+		//	g.SmoothingMode = SmoothingMode.AntiAlias;
+		//	return g;
+		//}
+		// TODO
 
 		public void Schoon (object o, EventArgs ea)
 		{

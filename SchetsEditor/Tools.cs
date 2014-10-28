@@ -46,6 +46,13 @@ namespace SchetsEditor
 
 		public override void Letter (SchetsControl s, char c)
 		{
+
+		}
+
+		/*
+
+		public override void Letter (SchetsControl s, char c)
+		{
 			if (c >= 32) {
 				Graphics gr = s.MaakBitmapGraphics ();
 				Font font = new Font ("Tahoma", 40);
@@ -59,6 +66,11 @@ namespace SchetsEditor
 				s.Invalidate ();
 			}
 		}
+
+			TODO: Implementeer als SchetsItem.
+
+		*/
+
 	}
 
 	public abstract class TweepuntTool : StartpuntTool
