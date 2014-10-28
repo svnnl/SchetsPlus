@@ -58,10 +58,10 @@ namespace SchetsEditor
 		public static Rectangle MaakRectangleVanPunten (Point p1, Point p2)
 		{
 			return new Rectangle (
-				p1.X,
-				p2.Y,
-				p2.X - p1.X,
-				p2.Y - p1.Y);
+				Math.Min (p1.X, p2.X),
+				Math.Min (p1.Y, p2.Y),
+				Math.Abs (p2.X - p1.X),
+				Math.Abs (p2.Y - p1.Y));
 		}
 
 		// Past de coordinaten van de zijdes van rechthoek

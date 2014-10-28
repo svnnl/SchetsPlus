@@ -10,6 +10,8 @@ namespace SchetsEditor
 		private Schets schets;
 		private Color penkleur;
 
+        public Schets Schets { get { return schets; } }
+
 		public Color PenKleur { get { return penkleur; } }
 
 		public SchetsControl ()

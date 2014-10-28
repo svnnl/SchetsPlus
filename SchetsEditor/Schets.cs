@@ -9,11 +9,10 @@ namespace SchetsEditor
 	{
 		private Bitmap bitmap;
 
-		private List<SchetsbaarItem> items
-			= new List<SchetsbaarItem>();
+		private List<SchetsbaarItem> items = new List<SchetsbaarItem>();
+        private SchetsbaarItem overlay = null;
 
-		public Schets ()
-		{
+		public Schets () {
 			bitmap = new Bitmap (1, 1);
 		}
 
@@ -21,10 +20,22 @@ namespace SchetsEditor
 			get { return bitmap; }
 		}
 
-		//public Graphics BitmapGraphics {
-		//	get { return Graphics.FromImage (bitmap); }
-		//}
-		// TODO
+        public void VoegSchetsbaarItemToe (SchetsbaarItem item) {
+            items.Add(item);
+        }
+
+        public void VerwijderSchetsbaarItemOpPunt (Point p)
+        {
+            for (uint i = items.Count - 1; i >= 0; i--) {
+                if (items[i].IsGeklikt(p)) {
+                    items.RemoveAt(i);
+                }
+            }
+        }
+
+        public void ZetOverlayItem (SchetsbaarItem item) {
+            overlay = item;
+        }
 
 		public void VeranderAfmeting (Size sz)
 		{
@@ -44,7 +55,16 @@ namespace SchetsEditor
 
 		public void Teken (Graphics gr)
 		{
+            Graphics bitmapGraphics = Graphics.FromImage(bitmap);
 
+            foreach (SchetsbaarItem item in items)
+                item.Teken (bitmapGraphics);
+
+            if (overlay != null)
+                overlay.Teken(bitmapGraphics);
+
+            /* Alles is op de bitmap getekend, die wordt op het
+             * scherm laten zien. */
 
 			gr.DrawImage (bitmap, 0, 0);
 		}

@@ -75,19 +75,12 @@ namespace SchetsEditor
 
 	public abstract class TweepuntTool : StartpuntTool
 	{
-		public static Rectangle Punten2Rechthoek (Point p1, Point p2)
-		{
-			return new Rectangle (
-				new Point (Math.Min (p1.X, p2.X), Math.Min (p1.Y, p2.Y)),
-                new Size (Math.Abs (p1.X - p2.X), Math.Abs (p1.Y - p2.Y))
-			);
-		}
-
 		public static Pen MaakPen (Brush b, int dikte)
 		{
 			Pen pen = new Pen (b, dikte);
 			pen.StartCap = LineCap.Round;
 			pen.EndCap = LineCap.Round;
+
 			return pen;
 		}
 
@@ -100,26 +93,27 @@ namespace SchetsEditor
 		public override void MuisDrag (SchetsControl s, Point p)
 		{
 			s.Refresh ();
-			this.Bezig (s.CreateGraphics (), this.startpunt, p);
+			this.Bezig (s.Schets, this.startpunt, p);
 		}
 
 		public override void MuisLos (SchetsControl s, Point p)
 		{
 			base.MuisLos (s, p);
-			this.Compleet (s.MaakBitmapGraphics (), this.startpunt, p);
-			s.Invalidate ();
+			this.Compleet (s.Schets, this.startpunt, p);
 		}
 
 		public override void Letter (SchetsControl s, char c)
 		{
+
 		}
 
-		public abstract void Bezig (Graphics g, Point p1, Point p2);
+		public abstract void Bezig (Schets schets, Point p1, Point p2);
 
-		public virtual void Compleet (Graphics g, Point p1, Point p2)
-		{
-			this.Bezig (g, p1, p2);
-		}
+        public virtual void Compleet(Schets schets, Point p1, Point p2)
+        {
+            this.Bezig();
+            schets.ZetOverlayItem(null);
+        }
 	}
 
 	public class RechthoekTool : TweepuntTool
@@ -129,10 +123,23 @@ namespace SchetsEditor
 			return "kader";
 		}
 
-		public override void Bezig (Graphics g, Point p1, Point p2)
+		public override void Bezig (Schets schets, Point p1, Point p2)
 		{
-			g.DrawRectangle (MaakPen (kwast, 3), TweepuntTool.Punten2Rechthoek (p1, p2));
+            schets.ZetOverlayItem(
+                new OmlijndeRechthoek(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
 		}
+
+        public override void Compleet (Schets schets, Point p1, Point p2)
+        {
+            schets.VoegSchetsbaarItemToe(
+                new OmlijndeRechthoek(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+
+            base.Compleet(schets, p1, p2);
+        }
 	}
 
 	public class EllipsTool : TweepuntTool   // Drawing of circles
@@ -142,10 +149,23 @@ namespace SchetsEditor
 			return "ellipse";
 		}
 
-		public override void Bezig (Graphics g, Point p1, Point p2)
+		public override void Bezig (Schets g, Point p1, Point p2)
 		{
-			g.DrawEllipse (MaakPen (kwast, 3), TweepuntTool.Punten2Rechthoek (p1, p2));
+            schets.ZetOverlayItem(
+                new OmlijndOvaal(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
 		}
+
+        public override void Compleet(Schets schets, Point p1, Point p2)
+        {
+            schets.VoegSchetsbaarItemToe(
+                new OmlijndOvaal(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+
+            base.Compleet(schets, p1, p2);
+        }
 	}
 
 	public class VolRechthoekTool : RechthoekTool
@@ -155,10 +175,23 @@ namespace SchetsEditor
 			return "vlak";
 		}
 
-		public override void Compleet (Graphics g, Point p1, Point p2)
-		{
-			g.FillRectangle (kwast, TweepuntTool.Punten2Rechthoek (p1, p2));
-		}
+        public override void Bezig(Schets schets, Point p1, Point p2)
+        {
+            schets.ZetOverlayItem(
+                new OmlijndeRechthoek(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+        }
+
+        public override void Compleet(Schets schets, Point p1, Point p2)
+        {
+            schets.VoegSchetsbaarItemToe(
+                new GevuldRechthoek(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+
+            base.Compleet(schets, p1, p2);
+        }
 	}
 
 	public class VulEllipsTool : EllipsTool // Drawing of filled circles
@@ -168,10 +201,23 @@ namespace SchetsEditor
 			return "vulEllips";
 		}
 
-		public override void Compleet (Graphics g, Point p1, Point p2)
-		{
-			g.FillEllipse (kwast, TweepuntTool.Punten2Rechthoek (p1, p2));
-		}
+        public override void Bezig(Schets schets, Point p1, Point p2)
+        {
+            schets.ZetOverlayItem(
+                new OmlijndOvaal(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+        }
+
+        public override void Compleet(Schets schets, Point p1, Point p2)
+        {
+            schets.VoegSchetsbaarItemToe(
+                new GevuldOvaal(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+
+            base.Compleet(schets, p1, p2);
+        }
 	}
 
 	public class LijnTool : TweepuntTool
@@ -181,10 +227,23 @@ namespace SchetsEditor
 			return "lijn";
 		}
 
-		public override void Bezig (Graphics g, Point p1, Point p2)
-		{
-			g.DrawLine (MaakPen (this.kwast, 3), p1.X, p1.Y, p2.X, p2.Y);
-		}
+        public override void Bezig(Schets schets, Point p1, Point p2)
+        {
+            schets.ZetOverlayItem(
+                new Lijn(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+        }
+
+        public override void Compleet(Schets schets, Point p1, Point p2)
+        {
+            schets.VoegSchetsbaarItemToe(
+                new Lijn(
+                    Wiskunde.MaakRectangleVanPunten(p1, p2),
+                    kwast));
+
+            base.Compleet(schets, p1, p2);
+        }
 	}
 
 	public class PenTool : LijnTool
@@ -208,9 +267,15 @@ namespace SchetsEditor
 			return "gum";
 		}
 
-		public override void Bezig (Graphics g, Point p1, Point p2)
-		{
-			g.DrawLine (MaakPen (Brushes.White, 7), p1.X, p1.Y, p2.X, p2.Y);
-		}
+        public override void Bezig(Schets schets, Point p1, Point p2)
+        {
+            schets.ZetOverlayItem(
+                new OmlijndOvaal(
+                    // Rondje om de gum
+                    Wiskunde.MaakRectangleVanPunten(
+                        new Point(p2.X-2,p2.Y-2),
+                        new Point(p2.X+2,p2.Y+2)),
+                    kwast));
+        }
 	}
 }
