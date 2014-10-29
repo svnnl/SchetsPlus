@@ -18,33 +18,26 @@ namespace SchetsEditor
 		{
 			this.BorderStyle = BorderStyle.Fixed3D;
 			this.schets = new Schets ();
-			this.Paint += this.teken;
-			this.Resize += this.veranderAfmeting;
-			this.veranderAfmeting (null, null);
+			this.Paint += this.Teken;
+			this.Resize += this.VeranderAfmeting;
+			this.VeranderAfmeting (null, null);
 		}
 
 		protected override void OnPaintBackground (PaintEventArgs e)
 		{
+
 		}
 
-		private void teken (object o, PaintEventArgs pea)
+		private void Teken (object o, PaintEventArgs pea)
 		{
 			schets.Teken (pea.Graphics);
 		}
 
-		private void veranderAfmeting (object o, EventArgs ea)
+		private void VeranderAfmeting (object o, EventArgs ea)
 		{
 			schets.VeranderAfmeting (this.ClientSize);
 			this.Invalidate ();
 		}
-
-		//public Graphics MaakBitmapGraphics ()
-		//{
-		//	Graphics g = schets.BitmapGraphics;
-		//	g.SmoothingMode = SmoothingMode.AntiAlias;
-		//	return g;
-		//}
-		// TODO
 
 		public void Schoon (object o, EventArgs ea)
 		{
@@ -55,7 +48,7 @@ namespace SchetsEditor
 		public void Roteer (object o, EventArgs ea)
 		{
 			schets.Roteer ();
-			this.veranderAfmeting (o, ea);
+			this.VeranderAfmeting (o, ea);
 		}
 
 		public void VeranderKleur (object obj, EventArgs ea)

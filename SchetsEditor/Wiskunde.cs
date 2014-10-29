@@ -9,18 +9,6 @@ namespace SchetsEditor
 	//
 	class Wiskunde
 	{
-		// Wiskundige operator die voor twee vectoren
-		// v1 en v2 (met lengte n) de som berekent van
-		// de vermenigvuldiging van v1[i] en v2[i], i
-		// loopt van 0 tot n.
-		//
-		// In deze implementatie: n == 2
-		//
-		public static double Dot2 (Point p1, Point p2)
-		{
-			return (p1.X * p2.X) + (p1.Y * p2.Y);
-		}
-
 		// Berekent de afstand tussen p1 en p2
 		//
 		public static double Afstand (Point p1, Point p2)
@@ -44,11 +32,6 @@ namespace SchetsEditor
 		public static Point PuntMin (Point p1, Point p2)
 		{
 			return PuntPlus (p1, new Point (-p2.X, -p2.Y));
-		}
-
-		public static Point PuntAbs (Point p)
-		{
-			return new Point (Math.Abs (p.X), Math.Abs (p.Y));
 		}
 
 		// Transformeert twee punten in een Rectangle
@@ -92,28 +75,17 @@ namespace SchetsEditor
 		//
 		public static bool IsPuntInOvaal (Point p, Rectangle ovaal)
 		{
-			// Ja, als de volgende vergelijking waar is:
-			//
-			// (x - h)^2     (y - k)^2
-			// ---------  +  ---------  <= 1
-			//    w^2           h^2
-			//
-			// waarbij
-			// 	- (x, y) = punt om te testen
-			//  - (h, k) = middelpunt ovaal
-			//  - w		 = breedte bounding rechthoek
-			//  - h		 = hoogte bounding rechthoek
-			//
-
-			// Bereken middelpunt
+			// Bereken middelpunt, gernomalizeerd, dus
+            // alsof de ovaal 
 			Point mp = new Point (
-				(ovaal.Left + ovaal.Right) / 2,
-				(ovaal.Top + ovaal.Bottom) / 2
+                ovaal.Left + (ovaal.Width / 2),
+                ovaal.Top + (ovaal.Height / 2)
 			);
 
-			return  ( (Math.Pow ( (double) p.X - mp.X, 2) / Math.Pow ( (double) ovaal.Width, 2)  ) +
-					  (Math.Pow ( (double) p.Y - mp.Y, 2) / Math.Pow ( (double) ovaal.Height, 2) )
-					) <= (double) 1.0;
+            double xComp = (double)(Math.Pow(p.X - mp.X, 2) / Math.Pow(ovaal.Width / 2, 2));
+            double yComp = (double)(Math.Pow(p.Y - mp.Y, 2) / Math.Pow(ovaal.Height / 2, 2));
+
+            return (double) (xComp + yComp) < (double) 1;
 		}
 	}
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace SchetsEditor
@@ -9,7 +11,7 @@ namespace SchetsEditor
 		// binnen deze marge wordt een klik nog steeds
 		// geregistreerd.
 		//
-		protected const int klikMarge = 2;
+		protected const int klikMarge = 4;
 
 		// Deze functie moet door de subklasse worden ge-
 		// implementeerd zodat die zich tekent op g.
@@ -80,56 +82,6 @@ namespace SchetsEditor
                         Math.Pow(p.X - punt1.X - (lQ * (punt2.X - punt1.X)), 2)
                                  + Math.Pow(p.Y - punt1.Y - (lQ * (punt2.Y - punt1.Y)), 2));
             }
-
-            /*
-
-			// Afstand tussen de twee punten van de lijn,
-			// in het kwadraat ...
-			double dp1p2
-				= Math.Sqrt (punt1.X - punt2.X) +
-				  Math.Sqrt (punt1.X - punt2.X);
-
-			if (dp1p2 == 0.0)
-			{
-				// Deze lijn is een punt, dus de afstand
-				// is makkelijk te berekenen ...
-				return Wiskunde.Afstand (p, punt1);
-			}
-
-			// Geeft indicatie van positie van P ten overstaande
-			// van de lijn.
-			double indicatie
-				= Wiskunde.Dot2 (Wiskunde.PuntMin (p, punt1),
-								 Wiskunde.PuntMin (punt2, punt1));
-
-			if (indicatie < 0.0)
-			{
-				// P zit aan deze zijde van het lijnsegment,
-				// afstand is als volgt:
-				return Wiskunde.Afstand (p, punt1);
-			}
-			else if (indicatie > 1.0)
-			{
-				// P zit aan de andere zijde, afstand:
-				return Wiskunde.Afstand (p, punt2);
-			}
-			else
-			{
-				*
-				 * P ligt ongeveer op de lijn, de afstand
-				 * is de afstand tussen punt p en zijn projectie
-				 * op de lijn tussen p1 en p2.
-				 *
-
-				Point projectie = new Point (
-					(int) (punt1.X + indicatie * (punt2.X - punt1.X)),
-					(int) (punt1.Y + indicatie * (punt2.Y - punt1.Y))
-				);
-
-				return Wiskunde.Afstand (p, projectie);
-			}
-             * 
-             */
 		}
 	}
 		
@@ -251,12 +203,39 @@ namespace SchetsEditor
 		}
 	}
 
-	/*
-	 * TODO
-	 *  - Tekst
-	 *  - Normaal getekende lijn
-	 *     In het omliggende blok van de klik simpelweg alle
-	 *     pixels in een radius van klikMarge controleren.
-	 */
+    public class GetekendeLijn : SchetsbaarItem
+    {
+        private List<Lijn> subLijnen = new List<Lijn>();
+
+        public GetekendeLijn(List<Lijn> lijntjes)
+        {
+            subLijnen = lijntjes;
+        }
+
+        public GetekendeLijn()
+        {
+            subLijnen = new List<Lijn>();
+        }
+
+        public void VoegLijntjeToe(Lijn lijntje)
+        {
+            subLijnen.Add(lijntje);
+        }
+
+        public override void Teken (Graphics g)
+        {
+            foreach (Lijn l in subLijnen)
+                l.Teken(g);
+        }
+
+        public override bool IsGeklikt(Point klik)
+        {
+            foreach (Lijn l in subLijnen)
+                if (l.IsGeklikt(klik))
+                    return true;
+
+            return false;
+        }
+    }
 }
 

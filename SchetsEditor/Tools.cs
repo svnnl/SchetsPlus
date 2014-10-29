@@ -49,7 +49,7 @@ namespace SchetsEditor
 
 		}
 
-		/*
+	/*
 
 		public override void Letter (SchetsControl s, char c)
 		{
@@ -67,7 +67,7 @@ namespace SchetsEditor
 			}
 		}
 
-			TODO: Implementeer als SchetsItem.
+		//	TODO: Implementeer als SchetsItem.
 
 		*/
 
@@ -75,15 +75,6 @@ namespace SchetsEditor
 
 	public abstract class TweepuntTool : StartpuntTool
 	{
-		public static Pen MaakPen (Brush b, int dikte)
-		{
-			Pen pen = new Pen (b, dikte);
-			pen.StartCap = LineCap.Round;
-			pen.EndCap = LineCap.Round;
-
-			return pen;
-		}
-
 		public override void MuisVast (SchetsControl s, Point p)
 		{
 			base.MuisVast (s, p);
@@ -255,22 +246,38 @@ namespace SchetsEditor
         }
 	}
 
-	public class PenTool : LijnTool
+	public class PenTool : TweepuntTool
 	{
+        private GetekendeLijn lijnTotNu = new GetekendeLijn();
+        private Point vorigePunt = new Point(0, 0);
+
 		public override string ToString ()
 		{
 			return "pen";
 		}
 
-		public override void MuisDrag (SchetsControl s, Point p)
-		{
-			this.MuisLos (s, p);
-			this.MuisVast (s, p);
-		}
+        public override void Bezig(Schets schets, Point p1, Point p2)
+        {
+            if (vorigePunt == null)
+                vorigePunt = p1;
+
+            lijnTotNu.VoegLijntjeToe(new Lijn(vorigePunt, p2, new Pen(kwast)));
+            schets.ZetOverlayItem(lijnTotNu);
+
+            vorigePunt = p2;
+        }
+
+        public override void Compleet(Schets schets, Point p1, Point p2)
+        {
+            schets.VoegSchetsbaarItemToe (lijnTotNu);
+            base.Compleet(schets, p1, p2);
+        }
 	}
 
 	public class GumTool : TweepuntTool
 	{
+        private const int gumDikte = 4;
+
 		public override string ToString ()
 		{
 			return "gum";
@@ -282,8 +289,8 @@ namespace SchetsEditor
                 new OmlijndOvaal(
                     // Rondje om de gum
                     Wiskunde.MaakRectangleVanPunten(
-                        new Point(p2.X-2,p2.Y-2),
-                        new Point(p2.X+2,p2.Y+2)),
+                        new Point(p2.X - gumDikte, p2.Y - gumDikte),
+                        new Point(p2.X + gumDikte, p2.Y + gumDikte)),
                     new Pen(kwast)));
 
             schets.VerwijderSchetsbaarItemOpPunt(p2); 
