@@ -94,12 +94,16 @@ namespace SchetsEditor
 		{
 			s.Refresh ();
 			this.Bezig (s.Schets, this.startpunt, p);
+
+            s.Invalidate();
 		}
 
 		public override void MuisLos (SchetsControl s, Point p)
 		{
 			base.MuisLos (s, p);
 			this.Compleet (s.Schets, this.startpunt, p);
+
+            s.Invalidate();
 		}
 
 		public override void Letter (SchetsControl s, char c)
@@ -111,7 +115,8 @@ namespace SchetsEditor
 
         public virtual void Compleet(Schets schets, Point p1, Point p2)
         {
-            this.Bezig();
+            this.Bezig(schets, p1, p2);
+
             schets.ZetOverlayItem(null);
         }
 	}
@@ -128,7 +133,7 @@ namespace SchetsEditor
             schets.ZetOverlayItem(
                 new OmlijndeRechthoek(
                     Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    new Pen (kwast)));
 		}
 
         public override void Compleet (Schets schets, Point p1, Point p2)
@@ -136,7 +141,7 @@ namespace SchetsEditor
             schets.VoegSchetsbaarItemToe(
                 new OmlijndeRechthoek(
                     Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    new Pen(kwast)));
 
             base.Compleet(schets, p1, p2);
         }
@@ -149,12 +154,12 @@ namespace SchetsEditor
 			return "ellipse";
 		}
 
-		public override void Bezig (Schets g, Point p1, Point p2)
+		public override void Bezig (Schets schets, Point p1, Point p2)
 		{
             schets.ZetOverlayItem(
                 new OmlijndOvaal(
                     Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    new Pen(kwast)));
 		}
 
         public override void Compleet(Schets schets, Point p1, Point p2)
@@ -162,13 +167,13 @@ namespace SchetsEditor
             schets.VoegSchetsbaarItemToe(
                 new OmlijndOvaal(
                     Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    new Pen(kwast)));
 
             base.Compleet(schets, p1, p2);
         }
 	}
 
-	public class VolRechthoekTool : RechthoekTool
+	public class VolRechthoekTool : TweepuntTool
 	{
 		public override string ToString ()
 		{
@@ -180,7 +185,7 @@ namespace SchetsEditor
             schets.ZetOverlayItem(
                 new OmlijndeRechthoek(
                     Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    new Pen(kwast)));
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
@@ -194,7 +199,7 @@ namespace SchetsEditor
         }
 	}
 
-	public class VulEllipsTool : EllipsTool // Drawing of filled circles
+	public class VulEllipsTool : TweepuntTool
 	{
 		public override string ToString ()
 		{
@@ -206,7 +211,7 @@ namespace SchetsEditor
             schets.ZetOverlayItem(
                 new OmlijndOvaal(
                     Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    new Pen(kwast)));
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
@@ -222,6 +227,8 @@ namespace SchetsEditor
 
 	public class LijnTool : TweepuntTool
 	{
+        private const float lijnDikte = 4;
+
 		public override string ToString ()
 		{
 			return "lijn";
@@ -231,16 +238,18 @@ namespace SchetsEditor
         {
             schets.ZetOverlayItem(
                 new Lijn(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    p1,
+                    p2,
+                    new Pen(kwast)));
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
         {
             schets.VoegSchetsbaarItemToe(
                 new Lijn(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
+                    p1,
+                    p2,
+                    new Pen(kwast, lijnDikte)));
 
             base.Compleet(schets, p1, p2);
         }
@@ -260,7 +269,7 @@ namespace SchetsEditor
 		}
 	}
 
-	public class GumTool : PenTool
+	public class GumTool : TweepuntTool
 	{
 		public override string ToString ()
 		{
@@ -275,7 +284,9 @@ namespace SchetsEditor
                     Wiskunde.MaakRectangleVanPunten(
                         new Point(p2.X-2,p2.Y-2),
                         new Point(p2.X+2,p2.Y+2)),
-                    kwast));
+                    new Pen(kwast)));
+
+            schets.VerwijderSchetsbaarItemOpPunt(p2); 
         }
 	}
 }

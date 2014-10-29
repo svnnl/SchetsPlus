@@ -62,6 +62,27 @@ namespace SchetsEditor
 		//
 		private double AfstandTotPunt (Point p)
 		{
+            double lQ =
+                (((punt2.X - punt1.X) * (p.X - punt1.X)) + ((punt2.Y - punt1.Y) * (p.Y - punt1.Y)))
+                / (Math.Pow(punt2.X - punt1.X, 2) + Math.Pow(punt2.Y - punt1.Y, 2));
+
+            if (lQ <= 0.0)
+            {
+                return Wiskunde.Afstand(p, punt1);
+            }
+            else if (lQ >= 1.0)
+            {
+                return Wiskunde.Afstand(p, punt2);
+            }
+            else
+            {
+                return Math.Sqrt(
+                        Math.Pow(p.X - punt1.X - (lQ * (punt2.X - punt1.X)), 2)
+                                 + Math.Pow(p.Y - punt1.Y - (lQ * (punt2.Y - punt1.Y)), 2));
+            }
+
+            /*
+
 			// Afstand tussen de twee punten van de lijn,
 			// in het kwadraat ...
 			double dp1p2
@@ -94,11 +115,11 @@ namespace SchetsEditor
 			}
 			else
 			{
-				/*
+				*
 				 * P ligt ongeveer op de lijn, de afstand
 				 * is de afstand tussen punt p en zijn projectie
 				 * op de lijn tussen p1 en p2.
-				 */
+				 *
 
 				Point projectie = new Point (
 					(int) (punt1.X + indicatie * (punt2.X - punt1.X)),
@@ -107,6 +128,8 @@ namespace SchetsEditor
 
 				return Wiskunde.Afstand (p, projectie);
 			}
+             * 
+             */
 		}
 	}
 		

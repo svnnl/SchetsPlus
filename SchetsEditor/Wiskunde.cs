@@ -70,7 +70,7 @@ namespace SchetsEditor
 		public static Rectangle VergrootRechthoek (Rectangle r, int d)
 		{
 			return new Rectangle (
-				r.Left + d, r.Top + d,
+				r.Left - d, r.Top - d,
 				r.Width + d, r.Height + d
 			);
 		}
@@ -81,10 +81,10 @@ namespace SchetsEditor
 		{
 			// Simpele berekening die uitwijst of punt 'p'
 			// binnen in rechthoek ligt.
-			return (p.X > rechthoek.Left &&
-					p.X < rechthoek.Right &&
-					p.Y > rechthoek.Top &&
-					p.Y < rechthoek.Bottom);
+			return (p.X >= rechthoek.Left &&
+					p.X <= rechthoek.Right &&
+					p.Y >= rechthoek.Top &&
+					p.Y <= rechthoek.Bottom);
 		}
 
 		// Geeft aan of punt p binnen het gegeven ovaal
@@ -111,9 +111,9 @@ namespace SchetsEditor
 				(ovaal.Top + ovaal.Bottom) / 2
 			);
 
-			return  ( (Math.Pow (p.X - mp.X, 2) / Math.Pow (ovaal.Width, 2)  ) +
-					  (Math.Pow (p.Y - mp.Y, 2) / Math.Pow (ovaal.Height, 2) )
-					) <= 1;
+			return  ( (Math.Pow ( (double) p.X - mp.X, 2) / Math.Pow ( (double) ovaal.Width, 2)  ) +
+					  (Math.Pow ( (double) p.Y - mp.Y, 2) / Math.Pow ( (double) ovaal.Height, 2) )
+					) <= (double) 1.0;
 		}
 	}
 }

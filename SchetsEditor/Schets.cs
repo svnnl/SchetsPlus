@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 
 namespace SchetsEditor
 {
-	class Schets
+	public class Schets
 	{
 		private Bitmap bitmap;
 
@@ -26,9 +27,10 @@ namespace SchetsEditor
 
         public void VerwijderSchetsbaarItemOpPunt (Point p)
         {
-            for (uint i = items.Count - 1; i >= 0; i--) {
+            for (int i = items.Count - 1; i >= 0; i--) {
                 if (items[i].IsGeklikt(p)) {
                     items.RemoveAt(i);
+                    break;
                 }
             }
         }
@@ -56,6 +58,9 @@ namespace SchetsEditor
 		public void Teken (Graphics gr)
 		{
             Graphics bitmapGraphics = Graphics.FromImage(bitmap);
+
+            bitmapGraphics.Clear(Color.White);
+            bitmapGraphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             foreach (SchetsbaarItem item in items)
                 item.Teken (bitmapGraphics);
