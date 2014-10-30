@@ -90,6 +90,19 @@ namespace SchetsEditor
             );
         }
 
+        // Geeft een nieuwe Rectangle terug die 90 graden naar
+        // rechts is gedraaid.
+        //
+        public static Rectangle DraaiRechthoek(Rectangle r)
+        {
+            // TODO : Laten werken
+
+            Point nieuwPunt = new Point(r.Y, r.X);
+            Size nieuweGrootte = new Size(r.Height, r.Width);
+
+            return new Rectangle(nieuwPunt, nieuweGrootte);
+        }
+
         // Geeft aan of punt p binnen het rechthoek ligt.
         //
         public static bool IsPuntInRechthoek(Point p, Rectangle rechthoek)

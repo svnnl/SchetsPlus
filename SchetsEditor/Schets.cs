@@ -93,7 +93,8 @@ namespace SchetsEditor
 
         public void Roteer()
         {
-            /* TODO: Dit is moeilijk */
+            foreach (SchetsbaarItem item in items)
+                item.Draai();
         }
     }
 }

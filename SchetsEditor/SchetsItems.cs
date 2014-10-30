@@ -28,16 +28,31 @@ namespace SchetsEditor
         // aangeeft of het gegeven punt 'raak' is.
         //
         public abstract bool IsGeklikt(Point klik);
+
+        // Deze functie zorgt ervoor dat het item 90 graden
+        // naar rechts wordt gedraaid.
+        //
+        public abstract void Draai();
     }
 
     public abstract class RechthoekigItem : SchetsbaarItem
     {
         public Rectangle rechthoek { get; protected set; }
+
+        public override void Draai()
+        {
+            rechthoek = Wiskunde.DraaiRechthoek(rechthoek);
+        }
     }
 
     public abstract class OvaalItem : SchetsbaarItem
     {
         public Rectangle ovaal { get; protected set; }
+
+        public override void Draai()
+        {
+            ovaal = Wiskunde.DraaiRechthoek(ovaal);
+        }
     }
 
     public class Lijn : SchetsbaarItem
@@ -64,6 +79,13 @@ namespace SchetsEditor
             // Als de afstand van klik tot de lijn lager
             // is dan de klikmarge --> raak!
             return (Wiskunde.AfstandLijnTotPunt(punt1, punt2, klik) < KlikMarge);
+        }
+
+        public override void Draai()
+        {
+            Point punt1tmp = punt1;
+            punt1 = punt2;
+            punt2 = punt1tmp;
         }
     }
 
@@ -224,6 +246,12 @@ namespace SchetsEditor
 
             return false;
         }
+
+        public override void Draai()
+        {
+            foreach (Lijn l in subLijnen)
+                l.Draai();
+        }
     }
 
     public class Letter : RechthoekigItem
@@ -257,6 +285,13 @@ namespace SchetsEditor
         public override bool IsGeklikt(Point klik)
         {
             return Wiskunde.IsPuntInRechthoek(klik, rechthoek);
+        }
+
+        public override void Draai()
+        {
+            rechthoek = Wiskunde.DraaiRechthoek(rechthoek);
+
+            /* TODO: Implementeren. */
         }
     }
 }
