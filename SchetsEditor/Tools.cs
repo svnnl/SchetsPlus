@@ -46,31 +46,24 @@ namespace SchetsEditor
 
 		public override void Letter (SchetsControl s, char c)
 		{
+            if (c >= 32)
+            {
+                Graphics graphics = Graphics.FromImage(s.Bitmap);
+                SizeF karakterGrootte =
+                    graphics.MeasureString ( c.ToString()
+                                           , SchetsEditor.Letter.Lettertype
+                                           , startpunt
+                                           , StringFormat.GenericTypographic
+                                           );
 
+                Letter letter = new Letter (c, startpunt, s.PenKleur, karakterGrootte);
+
+                startpunt.X += letter.rechthoek.Width;
+
+                s.Schets.VoegSchetsbaarItemToe(letter);
+                s.Invalidate();
+            }
 		}
-
-	/*
-
-		public override void Letter (SchetsControl s, char c)
-		{
-			if (c >= 32) {
-				Graphics gr = s.MaakBitmapGraphics ();
-				Font font = new Font ("Tahoma", 40);
-				string tekst = c.ToString ();
-				SizeF sz = 
-					gr.MeasureString (tekst, font, this.startpunt, StringFormat.GenericTypographic);
-				gr.DrawString (tekst, font, kwast, 
-					this.startpunt, StringFormat.GenericTypographic);
-				// gr.DrawRectangle(Pens.Black, startpunt.X, startpunt.Y, sz.Width, sz.Height);
-				startpunt.X += (int)sz.Width;
-				s.Invalidate ();
-			}
-		}
-
-		//	TODO: Implementeer als SchetsItem.
-
-		*/
-
 	}
 
 	public abstract class TweepuntTool : StartpuntTool
@@ -121,20 +114,16 @@ namespace SchetsEditor
 
 		public override void Bezig (Schets schets, Point p1, Point p2)
 		{
-            schets.ZetOverlayItem(
-                new OmlijndeRechthoek(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    new Pen (kwast)));
+            OmlijndRechthoek rechthoek = new OmlijndRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), new Pen(kwast));
+            schets.ZetOverlayItem(rechthoek);
 		}
 
         public override void Compleet (Schets schets, Point p1, Point p2)
         {
-            schets.VoegSchetsbaarItemToe(
-                new OmlijndeRechthoek(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    new Pen(kwast)));
-
             base.Compleet(schets, p1, p2);
+
+            OmlijndRechthoek rechthoek = new OmlijndRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), new Pen(kwast));
+            schets.VoegSchetsbaarItemToe(rechthoek);
         }
 	}
 
@@ -147,20 +136,16 @@ namespace SchetsEditor
 
 		public override void Bezig (Schets schets, Point p1, Point p2)
 		{
-            schets.ZetOverlayItem(
-                new OmlijndOvaal(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    new Pen(kwast)));
+            OmlijndOvaal ovaal = new OmlijndOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), new Pen(kwast));
+            schets.ZetOverlayItem(ovaal);
 		}
 
         public override void Compleet(Schets schets, Point p1, Point p2)
         {
-            schets.VoegSchetsbaarItemToe(
-                new OmlijndOvaal(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    new Pen(kwast)));
-
             base.Compleet(schets, p1, p2);
+
+            OmlijndOvaal ovaal = new OmlijndOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), new Pen(kwast));
+            schets.VoegSchetsbaarItemToe(ovaal);
         }
 	}
 
@@ -173,20 +158,16 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            schets.ZetOverlayItem(
-                new OmlijndeRechthoek(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    new Pen(kwast)));
+            OmlijndRechthoek rechthoek = new OmlijndRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), new Pen(kwast));
+            schets.ZetOverlayItem(rechthoek);
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
         {
-            schets.VoegSchetsbaarItemToe(
-                new GevuldRechthoek(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
-
             base.Compleet(schets, p1, p2);
+
+            GevuldRechthoek rechthoek = new GevuldRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), kwast);
+            schets.VoegSchetsbaarItemToe(rechthoek);
         }
 	}
 
@@ -199,20 +180,16 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            schets.ZetOverlayItem(
-                new OmlijndOvaal(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    new Pen(kwast)));
+            OmlijndOvaal ovaal = new OmlijndOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), new Pen(kwast));
+            schets.ZetOverlayItem(ovaal);
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
         {
-            schets.VoegSchetsbaarItemToe(
-                new GevuldOvaal(
-                    Wiskunde.MaakRectangleVanPunten(p1, p2),
-                    kwast));
-
             base.Compleet(schets, p1, p2);
+
+            GevuldOvaal ovaal = new GevuldOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), kwast);
+            schets.VoegSchetsbaarItemToe(ovaal);
         }
 	}
 
@@ -227,56 +204,67 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            schets.ZetOverlayItem(
-                new Lijn(
-                    p1,
-                    p2,
-                    new Pen(kwast)));
+            Lijn lijn = new Lijn(p1, p2, new Pen(kwast, lijnDikte));
+            schets.ZetOverlayItem(lijn);
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
         {
-            schets.VoegSchetsbaarItemToe(
-                new Lijn(
-                    p1,
-                    p2,
-                    new Pen(kwast, lijnDikte)));
-
             base.Compleet(schets, p1, p2);
+
+            Lijn lijn = new Lijn(p1, p2, new Pen(kwast, lijnDikte));
+            schets.VoegSchetsbaarItemToe(lijn);
         }
 	}
 
 	public class PenTool : TweepuntTool
 	{
-        private GetekendeLijn lijnTotNu = new GetekendeLijn();
-        private Point vorigePunt = new Point(0, 0);
+        private GetekendeLijn lijnTotNu = null;
 
 		public override string ToString ()
 		{
 			return "pen";
 		}
 
+        public override void MuisVast(SchetsControl s, Point p)
+        {
+            base.MuisVast(s, p);
+
+            // Voor deze tool hebben we liever dat de kleur tijdens het
+            // tekenen al de gekozen kleur is.
+            kwast = new SolidBrush(s.PenKleur);
+        }
+
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            if (vorigePunt == null)
-                vorigePunt = p1;
+            if (lijnTotNu == null)
+            {
+                lijnTotNu = new GetekendeLijn();
+            }
 
-            lijnTotNu.VoegLijntjeToe(new Lijn(vorigePunt, p2, new Pen(kwast)));
+            /* Voeg een nieuwe lijn to vanaf het laatste punt tot dit punt, laat die
+             * ook zien op de overlay, maar voeg hem nog niet echt toe aan de schets */
+
+            Point laatstePunt = lijnTotNu.LaatstePunt.HasValue ? (Point) lijnTotNu.LaatstePunt : p1;
+            Lijn subLijn = new Lijn(laatstePunt, p2, new Pen(kwast));
+
+            lijnTotNu.VoegLijntjeToe(subLijn);
+
             schets.ZetOverlayItem(lijnTotNu);
-
-            vorigePunt = p2;
         }
 
         public override void Compleet(Schets schets, Point p1, Point p2)
         {
-            schets.VoegSchetsbaarItemToe (lijnTotNu);
             base.Compleet(schets, p1, p2);
+
+            schets.VoegSchetsbaarItemToe (lijnTotNu);
+            lijnTotNu = null; // Begin opnieuw
         }
 	}
 
 	public class GumTool : TweepuntTool
 	{
-        private const int gumDikte = 4;
+        private const int gumDikte = SchetsbaarItem.KlikMarge;
 
 		public override string ToString ()
 		{
@@ -285,15 +273,15 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            schets.ZetOverlayItem(
-                new OmlijndOvaal(
-                    // Rondje om de gum
-                    Wiskunde.MaakRectangleVanPunten(
-                        new Point(p2.X - gumDikte, p2.Y - gumDikte),
-                        new Point(p2.X + gumDikte, p2.Y + gumDikte)),
-                    new Pen(kwast)));
+            Point pLinksBoven = new Point(p2.X - gumDikte, p2.Y - gumDikte);
+            Point pRechtsOnder = new Point(p2.X + gumDikte, p2.Y + gumDikte);
 
-            schets.VerwijderSchetsbaarItemOpPunt(p2); 
+            Rectangle rechthoekOmOvaal = Wiskunde.MaakRectangleVanPunten(pLinksBoven, pRechtsOnder);
+
+            OmlijndOvaal ovaal = new OmlijndOvaal(rechthoekOmOvaal, new Pen(kwast));
+
+            schets.ZetOverlayItem(ovaal); // Rondje op de plek van de gum
+            schets.VerwijderSchetsbaarItemOpPunt(p2);
         }
 	}
 }
