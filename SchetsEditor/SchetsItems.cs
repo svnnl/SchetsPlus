@@ -58,7 +58,7 @@ namespace SchetsEditor
         {
             // Als de afstand van klik tot de lijn lager
             // is dan de klikmarge --> raak!
-            return (AfstandLijnTotPunt(punt1, punt2, klik) < KlikMarge);
+            return (Wiskunde.AfstandLijnTotPunt(punt1, punt2, klik) < KlikMarge);
         }
     }
 
@@ -212,8 +212,10 @@ namespace SchetsEditor
             // Als een van de subLijnen is geklikt, zijn
             // ze allemaal geklikt.
             foreach (Lijn l in subLijnen)
+            {
                 if (l.IsGeklikt(klik))
                     return true;
+            }
 
             return false;
         }

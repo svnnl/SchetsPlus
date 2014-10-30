@@ -52,8 +52,8 @@ namespace SchetsEditor
         {
             if (sz.Width > bitmap.Size.Width || sz.Height > bitmap.Size.Height)
             {
-                Bitmap nieuw = new Bitmap(Math.Max(sz.Width, bitmap.Size.Width),
-                                            Math.Max(sz.Height, bitmap.Size.Height)
+                Bitmap nieuw = new Bitmap( Math.Max(sz.Width, bitmap.Size.Width)
+                                           , Math.Max(sz.Height, bitmap.Size.Height)
                                            );
 
                 Graphics gr = Graphics.FromImage(nieuw);

@@ -21,12 +21,14 @@ namespace SchetsEditor
 
         /*
          * Een aantal veelvoorkomende wiskunde operaties
-         * voor Punten geimplementeerd.cvvc
+         * voor Punten geimplementeerd.
+         * 
+         * TODO: EVT VERWIJDEREN
          */
 
         public static Point PuntPlus(Point p1, Point p2)
         {
-            return new Point(p1.X - p2.X, p1.Y - p2.Y);
+            return new Point(p1.X + p2.X, p1.Y + p2.Y);
         }
 
         public static Point PuntMin(Point p1, Point p2)

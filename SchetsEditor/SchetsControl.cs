@@ -8,11 +8,11 @@ namespace SchetsEditor
     public class SchetsControl : UserControl
     {
         private Schets schets;
-        private Color penkleur;
+        private Color kleur;
 
         public Schets Schets { get { return schets; } }
 
-        public Color PenKleur { get { return penkleur; } }
+        public Color Kleur { get { return kleur; } }
 
         public SchetsControl()
         {
@@ -54,13 +54,13 @@ namespace SchetsEditor
         public void VeranderKleur(object obj, EventArgs ea)
         {
             string kleurNaam = ((ComboBox)obj).Text;
-            penkleur = Color.FromName(kleurNaam);
+            kleur = Color.FromName(kleurNaam);
         }
 
         public void VeranderKleurViaMenu(object obj, EventArgs ea)
         {
             string kleurNaam = ((ToolStripMenuItem)obj).Text;
-            penkleur = Color.FromName(kleurNaam);
+            kleur = Color.FromName(kleurNaam);
         }
 
         public Bitmap Bitmap
