@@ -5,6 +5,11 @@ using System.Drawing;
 
 namespace SchetsEditor
 {
+    /*
+     *  TODO: BUG: Soms, wanneer een aantal items op de lijst staan, werkt het verwijderen niet,
+     *             vooral bij de items OmlijndRechthoek en OmlijndOvaal.
+     */
+
     public abstract class SchetsbaarItem
     {
         // Marge die wordt aangehouden voor omlijnde items,
