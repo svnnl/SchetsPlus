@@ -14,21 +14,21 @@ namespace SchetsEditor
 
     public abstract class StartpuntTool : ISchetsTool
     {
-        protected Color overlayKleur = Color.Gray;
-
         protected Point startpunt;
-        protected Color kleur;
 
-        // Bepaalt de dikte van de lijnen, ook voor
-        // alle omlijnde items.
+        protected Color kleur;
+        protected Color overlayKleur = Color.Gray;
         protected int lijnDikte;
+
+        public Color Kleur { get { return kleur; } set { kleur = value; } }
+        public Color OverlayKleur { get { return overlayKleur; } }
+        public int LijnDikte { get { return lijnDikte; } set { lijnDikte = value; } }
 
         public virtual void MuisVast(SchetsControl s, Point p)
         {
             startpunt = p;
             kleur = s.Kleur;
-            /* TODO : lijnDikte = s.PenDikte; */
-            lijnDikte = 4; // TODO Remoe
+            lijnDikte = s.LijnDikte;
         }
 
         public abstract void MuisLos(SchetsControl s, Point p);
@@ -170,7 +170,7 @@ namespace SchetsEditor
     {
         public override string ToString()
         {
-            return "vulEllips";
+            return "bol";
         }
 
         public override void Bezig(Schets schets, Point p1, Point p2)

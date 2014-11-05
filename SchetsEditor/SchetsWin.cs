@@ -58,7 +58,8 @@ namespace SchetsEditor
         private void handler_OpslaanAls(object obj, EventArgs ea)
         {
             SaveFileDialog fd = new SaveFileDialog();
-            fd.Filter = "JPG|*.jpg|BMP|*.bmp|PNG|*.png|Schets|*.schets";
+            fd.Filter = "Schets|*.schets|JPG|*.jpg|BMP|*.bmp|PNG|*.png";
+            fd.FilterIndex = 0;
 
             DialogResult res = fd.ShowDialog();
 
@@ -71,13 +72,9 @@ namespace SchetsEditor
         private void handler_Opslaan (object obj, EventArgs ea)
         {
             if (bestandsnaam == null)
-            {
                 handler_OpslaanAls(null, null);
-            }
             else
-            {
                 opslaan();
-            }
         }
 
 		private void opslaan ()
@@ -85,15 +82,7 @@ namespace SchetsEditor
             if (bestandsnaam == null)
                 return;
 
-            if (Path.GetExtension(bestandsnaam) == ".schets")
-            {
-                schetsControl.Schets.OpslaanAls(bestandsnaam);
-            }
-            else
-            {
-                ImageFormat format = formaatUitBestandnaam(bestandsnaam);
-                schetsControl.Bitmap.Save(bestandsnaam, format);
-            }
+            opslaanAls (bestandsnaam);
 		}
 
         private void opslaanAls (string bn)
@@ -103,11 +92,32 @@ namespace SchetsEditor
             if (format != null || Path.GetExtension(bn) == ".schets")
             {
                 bestandsnaam = bn;
-                opslaan();
+
+                if (Path.GetExtension(bestandsnaam) == ".schets")
+                    schetsControl.Schets.Serializeer(bestandsnaam);
+                else
+                    schetsControl.Bitmap.Save(bestandsnaam, format);
+
+                schetsControl.Schets.IsVeranderd = false;
             }
             else
             {
                 MessageBox.Show("Selecteer een bestandsformaat", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void handler_Sluiten(object sender, System.ComponentModel.CancelEventArgs cea)
+        {
+            if(schetsControl.Schets.IsVeranderd)
+            {
+                DialogResult res = MessageBox.Show(
+                    "Het plaatje bevat onopgeslagen wijzigingen, weet u zeker dat u weg wilt?",
+                    "Weet u het zeker?",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (res == DialogResult.No)
+                    cea.Cancel = true;
             }
         }
 
@@ -116,7 +126,7 @@ namespace SchetsEditor
 			this.Close ();
 		}
 
-		public SchetsWin ()
+		public SchetsWin (string bn = "")
 		{
 			ISchetsTool[] deTools = { new PenTool ()         
                                     , new LijnTool ()
@@ -126,11 +136,6 @@ namespace SchetsEditor
                                     , new GumTool ()
                                     , new EllipsTool ()
                                     , new VolEllipsTool ()
-			};
-
-			String[] deKleuren = { "Black", "Red", "Green", "Blue"
-                                 , "Yellow", "Magenta", "Cyan", "Brown"
-                                 , "Orange"
 			};
 
 			this.ClientSize = new Size (800, 600);
@@ -168,11 +173,19 @@ namespace SchetsEditor
 			this.Controls.Add (menuStrip);
 			this.maakFileMenu ();
 			this.maakToolMenu (deTools);
-			this.maakAktieMenu (deKleuren);
+			this.maakAktieMenu ();
 			this.maakToolButtons (deTools);
-			this.maakAktieButtons (deKleuren);
+			this.maakAktieButtons ();
 			this.Resize += this.veranderAfmeting;
+            this.Closing += this.handler_Sluiten;
 			this.veranderAfmeting (null, null);
+
+            if (bn != "")
+            {
+                bestandsnaam = bn;
+                schetsControl.Schets.Deserializeer(bestandsnaam);     
+                schetsControl.Schets.IsVeranderd = false;
+            }
 		}
 
 		private void maakFileMenu ()
@@ -202,16 +215,11 @@ namespace SchetsEditor
 			menuStrip.Items.Add (menu);
 		}
 
-		private void maakAktieMenu (String[] kleuren)
+		private void maakAktieMenu ()
 		{   
 			ToolStripMenuItem menu = new ToolStripMenuItem ("Aktie");
 			menu.DropDownItems.Add ("Clear", null, schetsControl.Schoon);
 			menu.DropDownItems.Add ("Roteer", null, schetsControl.Roteer);
-
-			ToolStripMenuItem submenu = new ToolStripMenuItem ("Kies kleur");
-			foreach (string k in kleuren)
-				submenu.DropDownItems.Add (k, null, schetsControl.VeranderKleurViaMenu);
-			menu.DropDownItems.Add (submenu);
 
 			menuStrip.Items.Add (menu);
 		}
@@ -219,12 +227,17 @@ namespace SchetsEditor
 		private void maakToolButtons (ICollection<ISchetsTool> tools)
 		{
 			int t = 0;
+            int buttonBreedte = 45;
+            int buttonHoogte = 62;
+            int buttonMarge = 10;
+
 			foreach (ISchetsTool tool in tools)
 			{
 				RadioButton b = new RadioButton ();
 				b.Appearance = Appearance.Button;
-				b.Size = new Size (45, 62);
-				b.Location = new Point (10, 10 + t * 62);
+                b.BackColor = Color.White;
+                b.Size = new Size(buttonBreedte, buttonHoogte);
+                b.Location = new Point(buttonMarge, buttonMarge + t * (buttonHoogte + buttonMarge));
 				b.Tag = tool;
 				b.Text = tool.ToString ();
 				b.Image = (Image)resourcemanager.GetObject (tool.ToString ());
@@ -238,20 +251,20 @@ namespace SchetsEditor
 			}
 		}
 
-		private void maakAktieButtons (String[] kleuren)
+		private void maakAktieButtons ()
 		{   
 			paneel = new Panel ();
 			paneel.Size = new Size (600, 24);
 			this.Controls.Add (paneel);
             
 			Button b;
-			Label l;
-			ComboBox cbb;
+            Label l;
+            NumericUpDown nud;
 
 			b = new Button (); 
 			b.Text = "Clear";  
 			b.Location = new Point (0, 0); 
-			b.Click += schetsControl.Schoon; 
+			b.Click += schetsControl.Schoon;
 			paneel.Controls.Add (b);
             
 			b = new Button (); 
@@ -260,20 +273,35 @@ namespace SchetsEditor
 			b.Click += schetsControl.Roteer; 
 			paneel.Controls.Add (b);
             
-			l = new Label ();  
-			l.Text = "Penkleur:"; 
-			l.Location = new Point (180, 3); 
-			l.AutoSize = true;               
-			paneel.Controls.Add (l);
-            
-			cbb = new ComboBox ();
-			cbb.Location = new Point (240, 0); 
-			cbb.DropDownStyle = ComboBoxStyle.DropDownList; 
-			cbb.SelectedValueChanged += schetsControl.VeranderKleur;
-			foreach (string k in kleuren)
-				cbb.Items.Add (k);
-			cbb.SelectedIndex = 0;
-			paneel.Controls.Add (cbb);
+			b = new Button ();  
+			b.Text = "Kleurkiezer"; 
+			b.Location = new Point (160, 0); 
+			b.Click += (sender, ea) =>
+                {
+                    ColorDialog cd = new ColorDialog();
+                    cd.Color = schetsControl.Kleur;
+                    if (cd.ShowDialog() == DialogResult.OK)
+                        schetsControl.Kleur = cd.Color;
+                };
+			paneel.Controls.Add (b);
+
+            l = new Label();
+            l.Location = new Point(240, 3);
+            l.Text = "Lijn Dikte:";
+            l.Width = 60;
+            paneel.Controls.Add(l);
+
+            nud = new NumericUpDown();
+            nud.Location = new Point(300, 1);
+            nud.Width = 50;
+            nud.Minimum = 0;
+            nud.Maximum = 10;
+            nud.Value = schetsControl.LijnDikte;
+            nud.ValueChanged += (sender, ea) =>
+                {
+                    schetsControl.LijnDikte = (int)((NumericUpDown)sender).Value;
+                };
+            paneel.Controls.Add(nud);
 		}
     }
 }

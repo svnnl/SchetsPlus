@@ -2,45 +2,59 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 
 namespace SchetsEditor
-{
-    /*
-     *  TODO: BUG: Soms, wanneer een aantal items op de lijst staan, werkt het verwijderen niet,
-     *             vooral bij de items OmlijndRechthoek en OmlijndOvaal.
-     */
-
-    [Serializable()]
-    public abstract class SchetsbaarItem
+{  
+    public class SchetsbaarItem
     {
-        // Marge die wordt aangehouden voor omlijnde items,
-        // binnen deze marge wordt een klik nog steeds
-        // geregistreerd.
-        //
+        /// Marge die wordt aangehouden voor omlijnde items,
+        /// binnen deze marge wordt een klik nog steeds
+        /// geregistreerd.
+        ///
         public const int KlikMarge = 4;
 
-        // Kleur van object
-        //
+        /// Kleur van object
+        ///
         protected Color kleur;
 
-        // Deze functie moet door de subklasse worden ge-
-        // implementeerd zodat die zich tekent op g.
-        //
-        public abstract void Teken(Graphics g);
+        /// Schrijf object weg op stream w.
+        ///
+        public virtual void Serialiseer(BinaryWriter w)
+        {
+            w.Write((Int32)kleur.A);
+            w.Write((Int32)kleur.R);
+            w.Write((Int32)kleur.G);
+            w.Write((Int32)kleur.B);
+        }
 
-        // Deze functie moet door de subklasse worden ge-
-        // implementeerd zodat die een bool teruggeeft die
-        // aangeeft of het gegeven punt 'raak' is.
-        //
-        public abstract bool IsGeraakt(Point p);
+        /// Lees object uit stream r.
+        ///
+        public virtual void Deserialiseer(BinaryReader r)
+        {
+            kleur = Color.FromArgb(
+                r.ReadInt32(), r.ReadInt32(),
+                r.ReadInt32(), r.ReadInt32()
+            );
+        }
 
-        // Deze functie zorgt ervoor dat het item 90 graden
-        // naar rechts wordt gedraaid.
-        //
-        public abstract void Draai(Size grootte);
+        /// Deze functie moet door de subklasse worden ge-
+        /// implementeerd zodat die zich tekent op g.
+        ///
+        public virtual void Teken(Graphics g) { }
+
+        /// Deze functie moet door de subklasse worden ge-
+        /// implementeerd zodat die een bool teruggeeft die
+        /// aangeeft of het gegeven punt 'raak' is.
+        ///
+        public virtual bool IsGeraakt(Point p) { return false;  }
+
+        /// Deze functie zorgt ervoor dat het item 90 graden
+        /// naar rechts wordt gedraaid.
+        ///
+        public virtual void Draai(Size grootte) { }
     }
-
-    [Serializable()]
+    
     public abstract class RechthoekigItem : SchetsbaarItem
     {
         public Rectangle rechthoek { get; protected set; }
@@ -49,9 +63,26 @@ namespace SchetsEditor
         {
             rechthoek = Wiskunde.DraaiRechthoek(rechthoek, grootte);
         }
-    }
 
-    [Serializable()]
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+ 	        w.Write((Int32)rechthoek.X);
+            w.Write((Int32)rechthoek.Y);
+            w.Write((Int32)rechthoek.Width);
+            w.Write((Int32)rechthoek.Height);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+ 	        rechthoek = new Rectangle(
+                r.ReadInt32(), r.ReadInt32(),
+                r.ReadInt32(), r.ReadInt32()
+            );
+        }
+    }
+    
     public abstract class EllipsvormigItem : SchetsbaarItem
     {
         public Rectangle ovaal { get; protected set; }
@@ -60,9 +91,26 @@ namespace SchetsEditor
         {
             ovaal = Wiskunde.DraaiRechthoek(ovaal, grootte);
         }
-    }
 
-    [Serializable()]
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+ 	        w.Write((Int32)ovaal.X);
+            w.Write((Int32)ovaal.Y);
+            w.Write((Int32)ovaal.Width);
+            w.Write((Int32)ovaal.Height);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+ 	        ovaal = new Rectangle(
+                r.ReadInt32(), r.ReadInt32(),
+                r.ReadInt32(), r.ReadInt32()
+            );
+        }
+    }
+    
     public class Lijn : SchetsbaarItem
     {
         public Point punt1 { get; protected set; }
@@ -76,6 +124,11 @@ namespace SchetsEditor
             punt2 = p2;
             kleur = k;
             dikte = d;
+        }
+
+        public Lijn(BinaryReader r)
+        {
+            Deserialiseer(r);
         }
 
         public override void Teken(Graphics g)
@@ -95,12 +148,34 @@ namespace SchetsEditor
             punt1 = new Point(grootte.Height - punt1.Y, punt1.X);
             punt2 = new Point(grootte.Height - punt2.Y, punt2.X);
         }
-    }
 
-    [Serializable()]
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+ 	        w.Write((Int32)punt1.X);
+            w.Write((Int32)punt1.Y);
+            w.Write((Int32)punt2.X);
+            w.Write((Int32)punt2.Y);
+            w.Write((Int32)dikte);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+            punt1 = new Point(r.ReadInt32(), r.ReadInt32());
+            punt2 = new Point(r.ReadInt32(), r.ReadInt32());
+            dikte = r.ReadInt32();
+        }
+    }
+    
     public class Rechthoek : RechthoekigItem
     {
         private int dikte;
+
+        public Rechthoek(BinaryReader r)
+        {
+            Deserialiseer(r);
+        }
 
         public Rechthoek(Rectangle rect, Color k, int d)
         {
@@ -132,11 +207,27 @@ namespace SchetsEditor
             return (Wiskunde.IsPuntInRechthoek(p, groter) &&
                     !Wiskunde.IsPuntInRechthoek(p, kleiner));
         }
-    }
 
-    [Serializable()]
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+            w.Write((Int32)dikte);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+            dikte = r.ReadInt32();
+        }
+    }
+    
     public class VolRechthoek : RechthoekigItem
     {
+        public VolRechthoek(BinaryReader r)
+        {
+            Deserialiseer(r);
+        }
+
         public VolRechthoek(Rectangle rect, Color k)
         {
             rechthoek = rect;
@@ -153,11 +244,15 @@ namespace SchetsEditor
             return Wiskunde.IsPuntInRechthoek(p, rechthoek);
         }
     }
-
-    [Serializable()]
+    
     public class Ellips : EllipsvormigItem
     {
         private int dikte;
+
+        public Ellips(BinaryReader r)
+        {
+            Deserialiseer(r);
+        }
 
         public Ellips(Rectangle rect, Color k, int d)
         {
@@ -184,11 +279,27 @@ namespace SchetsEditor
             return (Wiskunde.IsPuntInOvaal(p, groter) &&
                     !Wiskunde.IsPuntInOvaal(p, kleiner));
         }
-    }
 
-    [Serializable()]
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+            w.Write((Int32)dikte);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+            dikte = r.ReadInt32();
+        }
+    }
+ 
     public class VolEllips : EllipsvormigItem
     {
+        public VolEllips(BinaryReader r)
+        {
+            Deserialiseer(r);
+        }
+
         public VolEllips(Rectangle rect, Color k)
         {
             ovaal = rect;
@@ -205,14 +316,18 @@ namespace SchetsEditor
             return Wiskunde.IsPuntInOvaal(p, ovaal);
         }
     }
-
-    [Serializable()]
+    
     public class GetekendeLijn : SchetsbaarItem
     {
         private LinkedList<Lijn> subLijnen = new LinkedList<Lijn>();
 
         public Point? LaatstePunt {
             get { return (subLijnen.Count > 0) ? subLijnen.Last.Value.punt2 : (Point?)null; }
+        }
+
+        public GetekendeLijn(BinaryReader r)
+        {
+            Deserialiseer(r);
         }
 
         public GetekendeLijn()
@@ -240,7 +355,7 @@ namespace SchetsEditor
                 if (l.IsGeraakt(p))
                     return true;
             }
-
+            
             return false;
         }
 
@@ -249,19 +364,39 @@ namespace SchetsEditor
             foreach (Lijn l in subLijnen)
                 l.Draai(grootte);
         }
-    }
 
-    [Serializable()]
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+            w.Write((Int32)subLijnen.Count);
+            foreach (Lijn l in subLijnen)
+                l.Serialiseer(w);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+            int n = r.ReadInt32();
+            for (int i = 0; i < n; i++)
+                subLijnen.AddLast(new Lijn(r));
+        }
+    }
+    
     public class Letter : RechthoekigItem
     {
-        private string tekst;
-        private int draaihoek;
-
         public static Font Lettertype = new Font("Tahoma", 40);
 
-        public Letter(char karakter, Point punt, Color k, SizeF kGrootte)
+        private char karakter;
+        private int draaihoek;
+
+        public Letter(BinaryReader r)
         {
-            tekst = karakter.ToString();
+            Deserialiseer(r);
+        }
+
+        public Letter(char kar, Point punt, Color k, SizeF kGrootte)
+        {
+            karakter = kar;
             kleur = k;
             draaihoek = 0;
 
@@ -276,7 +411,7 @@ namespace SchetsEditor
                 Wiskunde.KrijgOrigineleLinksBovenHoek(rechthoek, draaihoek).Y);
             g.RotateTransform((int)draaihoek);
 
-            g.DrawString(tekst,
+            g.DrawString(karakter.ToString(),
                          Lettertype,
                          new SolidBrush(kleur),
                          0, 0,
@@ -301,6 +436,20 @@ namespace SchetsEditor
         {
             rechthoek = Wiskunde.DraaiRechthoek(rechthoek, grootte);
             draaihoek = (draaihoek + 90) % 360;
+        }
+
+        public override void Serialiseer(BinaryWriter w)
+        {
+            base.Serialiseer(w);
+            w.Write(karakter);
+            w.Write((Int32)draaihoek);
+        }
+
+        public override void Deserialiseer(BinaryReader r)
+        {
+            base.Deserialiseer(r);
+            karakter = r.ReadChar();
+            draaihoek = r.ReadInt32();
         }
     }
 }

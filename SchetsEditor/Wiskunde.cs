@@ -108,8 +108,6 @@ namespace SchetsEditor
         ///
         public static bool IsPuntInRechthoek(Point p, Rectangle rechthoek)
         {
-            // Simpele berekening die uitwijst of punt 'p'
-            // binnen in rechthoek ligt.
             return (p.X >= rechthoek.Left &&
                     p.X <= rechthoek.Right &&
                     p.Y >= rechthoek.Top &&

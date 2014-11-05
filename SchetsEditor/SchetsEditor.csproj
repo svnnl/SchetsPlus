@@ -80,7 +80,7 @@
     <Compile Include="Wiskunde.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Pen.png" />
+    <None Include="Resources\pen.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\gum.png" />
@@ -99,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ellipse.png" />
-    <None Include="Resources\vulEllips.png" />
+    <None Include="Resources\bol.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

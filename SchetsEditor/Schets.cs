@@ -15,19 +15,20 @@ namespace SchetsEditor
         private List<SchetsbaarItem> items = new List<SchetsbaarItem>();
         private SchetsbaarItem overlay = null;
 
+        private bool isVeranderd = true;
+
         public Schets()
         {
             bitmap = new Bitmap(1, 1);
         }
 
-        public Bitmap Bitmap
-        {
-            get { return bitmap; }
-        }
+        public Bitmap Bitmap { get { return bitmap; } }
+        public bool IsVeranderd { get { return isVeranderd; } set { isVeranderd = value;  } }
 
         public void VoegSchetsbaarItemToe(SchetsbaarItem item)
         {
             items.Add(item);
+            isVeranderd = true;
         }
 
         public void VerwijderSchetsbaarItemOpPunt(Point p)
@@ -37,6 +38,7 @@ namespace SchetsEditor
                 if (items[i].IsGeraakt(p))
                 {
                     items.RemoveAt(i);
+                    isVeranderd = true;
 
                     // Is het item gevonden? En verwijderd?
                     // Dan zijn we klaar.
@@ -50,15 +52,53 @@ namespace SchetsEditor
             overlay = item;
         }
 
-        public void OpslaanAls(string bestandsnaam)
+        public void Serializeer(string bestandsnaam)
         {
-            Stream uitStream = File.OpenWrite(bestandsnaam);
-            BinaryFormatter formatter = new BinaryFormatter();
+            Stream uitStream = File.Open(bestandsnaam, FileMode.OpenOrCreate, FileAccess.Write);
+            BinaryWriter writer = new BinaryWriter(uitStream);
 
             foreach (SchetsbaarItem item in items)
-                formatter.Serialize(uitStream, item);
+            {
+                writer.Write(item.GetType().ToString());
+                item.Serialiseer(writer);
+                writer.Write('\n');
+            }
 
+            writer.Close();
             uitStream.Close();
+        }
+
+        public void Deserializeer(string bestandsnaam)
+        {
+            Stream inStream = File.OpenRead(bestandsnaam);
+            BinaryReader reader = new BinaryReader(inStream);
+
+            while(inStream.CanRead)
+            {
+                try
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "SchetsEditor.Lijn": items.Add(new Lijn(reader)); break;
+                        case "SchetsEditor.GetekendeLijn": items.Add(new GetekendeLijn(reader)); break;
+                        case "SchetsEditor.Rechthoek": items.Add(new Rechthoek(reader)); break;
+                        case "SchetsEditor.VolRechthoek": items.Add(new VolRechthoek(reader)); break;
+                        case "SchetsEditor.Ellips": items.Add(new Ellips(reader)); break;
+                        case "SchetsEditor.VolEllips": items.Add(new VolEllips(reader)); break;
+                        case "SchetsEditor.Letter": items.Add(new Letter(reader)); break;
+                    }
+                }
+                catch (EndOfStreamException)
+                {
+                    break;
+                }
+
+                if (reader.ReadChar() != '\n')
+                    break;
+            }
+
+            reader.Close();
+            inStream.Close();
         }
 
         public void VeranderAfmeting(Size sz)

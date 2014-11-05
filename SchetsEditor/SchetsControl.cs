@@ -9,13 +9,18 @@ namespace SchetsEditor
     {
         private Schets schets;
         private Color kleur;
+        private int lijnDikte;
 
         public Schets Schets { get { return schets; } }
 
-        public Color Kleur { get { return kleur; } }
+        public Color Kleur { get { return kleur; } set { kleur = value; } }
+
+        public int LijnDikte { get { return lijnDikte; } set { lijnDikte = value; } }
 
         public SchetsControl()
         {
+            this.kleur = Color.Black;
+            this.lijnDikte = 3;
             this.BorderStyle = BorderStyle.Fixed3D;
             this.schets = new Schets();
             this.Paint += this.Teken;

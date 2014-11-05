@@ -10,7 +10,7 @@ namespace SchetsEditor
 
 		public Hoofdscherm ()
 		{
-			this.ClientSize = new Size (800, 600);
+			this.ClientSize = new Size (1000, 800);
 			menuStrip = new MenuStrip ();
 			this.Controls.Add (menuStrip);
 			this.maakFileMenu ();
@@ -25,6 +25,7 @@ namespace SchetsEditor
 			ToolStripDropDownItem menu;
 			menu = new ToolStripMenuItem ("File");
 			menu.DropDownItems.Add ("Nieuw", null, this.nieuw);
+            menu.DropDownItems.Add ("Open", null, this.open);
 			menu.DropDownItems.Add ("Exit", null, this.afsluiten);
 			menuStrip.Items.Add (menu);
 		}
@@ -39,7 +40,7 @@ namespace SchetsEditor
 
 		private void about (object o, EventArgs ea)
 		{
-			MessageBox.Show ("Schets versie 1.1\n(c) UU Informatica 2010 & Sebastiaan, Gerwin 2014"
+			MessageBox.Show ("Schets versie 1.1\n(c) UU Informatica 1014 door Sebastiaan & Gerwin 2014"
                            , "Over \"SchetsPlus\""
                            , MessageBoxButtons.OK
                            , MessageBoxIcon.Information
@@ -57,5 +58,21 @@ namespace SchetsEditor
 		{
 			this.Close ();
 		}
-	}
+
+        private void open (object sender, EventArgs e)
+        {
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Filter = "Schets|*.schets";
+            
+            if (fd.ShowDialog() == DialogResult.OK)
+            {
+                if (System.IO.File.Exists(fd.FileName))
+                {
+                    SchetsWin s = new SchetsWin(fd.FileName);
+                    s.MdiParent = this;
+                    s.Show();
+                }
+            }
+        }
+    }
 }
