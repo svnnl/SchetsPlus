@@ -33,7 +33,7 @@ namespace SchetsEditor
         // Deze functie zorgt ervoor dat het item 90 graden
         // naar rechts wordt gedraaid.
         //
-        public abstract void Draai();
+        public abstract void Draai(Size grootte);
     }
 
     [Serializable()]
@@ -41,9 +41,9 @@ namespace SchetsEditor
     {
         public Rectangle rechthoek { get; protected set; }
 
-        public override void Draai()
+        public override void Draai(Size grootte)
         {
-            rechthoek = Wiskunde.DraaiRechthoek(rechthoek);
+            rechthoek = Wiskunde.DraaiRechthoek(rechthoek, grootte);
         }
     }
 
@@ -52,9 +52,9 @@ namespace SchetsEditor
     {
         public Rectangle ovaal { get; protected set; }
 
-        public override void Draai()
+        public override void Draai(Size grootte)
         {
-            ovaal = Wiskunde.DraaiRechthoek(ovaal);
+            ovaal = Wiskunde.DraaiRechthoek(ovaal, grootte);
         }
     }
 
@@ -82,14 +82,13 @@ namespace SchetsEditor
         {
             // Als de afstand van klik tot de lijn lager
             // is dan de klikmarge --> raak!
-            return (Wiskunde.AfstandLijnTotPunt(punt1, punt2, p) < KlikMarge);
+            return Wiskunde.AfstandLijnTotPunt(punt1, punt2, p) < KlikMarge;
         }
 
-        public override void Draai()
+        public override void Draai(Size grootte)
         {
-            Point punt1tmp = punt1;
-            punt1 = punt2;
-            punt2 = punt1tmp;
+            punt1 = new Point(grootte.Height - punt1.Y, punt1.X);
+            punt2 = new Point(grootte.Height - punt2.Y, punt2.X);
         }
     }
 
@@ -169,16 +168,11 @@ namespace SchetsEditor
 
         public override bool IsGeraakt(Point p)
         {
-            // Om dit te berekenen gebruiken we de volgende methode:
-            // We gebruiken twee extra ovalen, waarvan:
-            // 	Ovaal #1 -> Is gelijk aan het origineel maar met de marge
-            //				opgeteld aan alle zijdes,
-            //  Ovaal #2 -> Is gelijk aan het origineel maar met de marge
-            //				afgetrokken aan alle zijdes.
-            //
-            // Wanneer de klik _wel_ binnen ovaal #1 ligt, maar _niet_
-            // binnen ovaal #2 valt de klik binnen de marge.
-            //
+            /*
+             * Bereken dit mbv de groter-kleiner-methode, ook
+             * gebruikt in rechthoek.
+             */
+
             Rectangle groter = Wiskunde.VergrootRechthoek(ovaal, KlikMarge);
             Rectangle kleiner = Wiskunde.VergrootRechthoek(ovaal, -KlikMarge);
 
@@ -256,10 +250,10 @@ namespace SchetsEditor
             return false;
         }
 
-        public override void Draai()
+        public override void Draai(Size grootte)
         {
             foreach (Lijn l in subLijnen)
-                l.Draai();
+                l.Draai(grootte);
         }
     }
 
@@ -268,6 +262,7 @@ namespace SchetsEditor
     {
         private string tekst;
         private Brush vulling;
+        private int draaihoek;
 
         public static Font Lettertype = new Font("Tahoma", 40);
 
@@ -275,6 +270,7 @@ namespace SchetsEditor
         {
             tekst = karakter.ToString();
             vulling = new SolidBrush(kleur);
+            draaihoek = 0;
 
             // Sla rechthoek om letter op.
             rechthoek = new Rectangle(punt.X, punt.Y, (int)kGrootte.Width, (int)kGrootte.Height);
@@ -282,11 +278,22 @@ namespace SchetsEditor
 
         public override void Teken(Graphics g)
         {
+            // Draai letter onder bepaalde hoek
+            g.TranslateTransform(Wiskunde.KrijgOrigineleLinksBovenHoek(rechthoek, draaihoek).X,
+                Wiskunde.KrijgOrigineleLinksBovenHoek(rechthoek, draaihoek).Y);
+            g.RotateTransform((int)draaihoek);
+
             g.DrawString(tekst,
                          Lettertype,
                          vulling,
-                         new Point(rechthoek.X, rechthoek.Y),
+                         0, 0,
                          StringFormat.GenericTypographic);
+
+            // Draai alles terug, zodat latere teken-acties hier
+            // geen last van hebben.
+            g.RotateTransform((int)-draaihoek);
+            g.TranslateTransform(-Wiskunde.KrijgOrigineleLinksBovenHoek(rechthoek, draaihoek).X,
+                -Wiskunde.KrijgOrigineleLinksBovenHoek(rechthoek, draaihoek).Y);
 
             // Teken een rechthoek om de letter
             g.DrawRectangle(Pens.Gray, rechthoek);
@@ -297,11 +304,10 @@ namespace SchetsEditor
             return Wiskunde.IsPuntInRechthoek(p, rechthoek);
         }
 
-        public override void Draai()
+        public override void Draai(Size grootte)
         {
-            rechthoek = Wiskunde.DraaiRechthoek(rechthoek);
-
-            /* TODO: Implementeren. */
+            rechthoek = Wiskunde.DraaiRechthoek(rechthoek, grootte);
+            draaihoek = (draaihoek + 90) % 360;
         }
     }
 }

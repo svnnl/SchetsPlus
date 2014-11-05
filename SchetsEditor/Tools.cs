@@ -209,7 +209,11 @@ namespace SchetsEditor
         {
             base.Compleet(schets, p1, p2);
 
-            Lijn lijn = new Lijn(p1, p2, MaakPen());
+            // Kies linker punt als punt 1!
+            Point np1 = (Math.Min(p1.X, p2.X) == p1.X) ? p1 : p2;
+            Point np2 = (np1 == p1) ? p2 : p1;
+
+            Lijn lijn = new Lijn(np1, np2, MaakPen());
             schets.VoegSchetsbaarItemToe(lijn);
         }
     }

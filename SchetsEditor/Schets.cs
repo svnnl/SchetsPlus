@@ -107,7 +107,7 @@ namespace SchetsEditor
         public void Roteer()
         {
             foreach (SchetsbaarItem item in items)
-                item.Draai();
+                item.Draai(Bitmap.Size);
         }
     }
 }
