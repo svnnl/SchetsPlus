@@ -136,9 +136,10 @@ namespace SchetsEditor
                                     , new GumTool ()
                                     , new EllipsTool ()
                                     , new VolEllipsTool ()
+                                    , new BovenopTool ()
 			};
 
-			this.ClientSize = new Size (800, 600);
+			this.ClientSize = new Size (1000, 780);
 			huidigeTool = deTools [0];
 
 			schetsControl = new SchetsControl ();
@@ -228,7 +229,7 @@ namespace SchetsEditor
 		{
 			int t = 0;
             int buttonBreedte = 45;
-            int buttonHoogte = 62;
+            int buttonHoogte = 70;
             int buttonMarge = 10;
 
 			foreach (ISchetsTool tool in tools)

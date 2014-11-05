@@ -269,7 +269,30 @@ namespace SchetsEditor
             Ellips ovaal = new Ellips(rechthoekOmOvaal, overlayKleur, lijnDikte);
 
             schets.ZetOverlayItem(ovaal); // Rondje op de plek van de gum
-            schets.VerwijderSchetsbaarItemOpPunt(p2);
+            schets.VerwijderSchetsbaarItem(p2);
+        }
+    }
+
+    public class BovenopTool : TweepuntTool
+    {
+        private const int bovenupDikte = SchetsbaarItem.KlikMarge;
+
+        public override string ToString()
+        {
+            return "bovenop";
+        }
+
+        public override void Bezig(Schets schets, Point p1, Point p2)
+        {
+            Point pLinksBoven = new Point(p2.X - bovenupDikte, p2.Y - bovenupDikte);
+            Point pRechtsOnder = new Point(p2.X + bovenupDikte, p2.Y + bovenupDikte);
+
+            Rectangle rechthoekOmOvaal = Wiskunde.MaakRectangleVanPunten(pLinksBoven, pRechtsOnder);
+
+            Ellips ovaal = new Ellips(rechthoekOmOvaal, overlayKleur, lijnDikte);
+
+            schets.ZetOverlayItem(ovaal); // Rondje op de plek van deze tool
+            schets.SchetsbaarItemBovenopLeggen(p2);
         }
     }
 }

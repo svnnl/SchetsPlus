@@ -31,12 +31,29 @@ namespace SchetsEditor
             isVeranderd = true;
         }
 
-        public void VerwijderSchetsbaarItemOpPunt(Point p)
+        public void VerwijderSchetsbaarItem(Point p)
         {
             for (int i = items.Count - 1; i >= 0; i--)
             {
                 if (items[i].IsGeraakt(p))
                 {
+                    items.RemoveAt(i);
+                    isVeranderd = true;
+
+                    // Is het item gevonden? En verwijderd?
+                    // Dan zijn we klaar.
+                    break;
+                }
+            }
+        }
+
+        public void SchetsbaarItemBovenopLeggen(Point p)
+        {
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                if (items[i].IsGeraakt(p))
+                {
+                    items.Add(items[i]);
                     items.RemoveAt(i);
                     isVeranderd = true;
 
