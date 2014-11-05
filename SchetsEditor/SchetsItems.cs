@@ -19,6 +19,10 @@ namespace SchetsEditor
         //
         public const int KlikMarge = 4;
 
+        // Kleur van object
+        //
+        protected Color kleur;
+
         // Deze functie moet door de subklasse worden ge-
         // implementeerd zodat die zich tekent op g.
         //
@@ -48,7 +52,7 @@ namespace SchetsEditor
     }
 
     [Serializable()]
-    public abstract class OvaalItem : SchetsbaarItem
+    public abstract class EllipsvormigItem : SchetsbaarItem
     {
         public Rectangle ovaal { get; protected set; }
 
@@ -61,21 +65,22 @@ namespace SchetsEditor
     [Serializable()]
     public class Lijn : SchetsbaarItem
     {
-        public Pen lijn { get; protected set; }
-
         public Point punt1 { get; protected set; }
         public Point punt2 { get; protected set; }
 
-        public Lijn(Point p1, Point p2, Pen pen)
+        private int dikte;
+
+        public Lijn(Point p1, Point p2, Color k, int d)
         {
             punt1 = p1;
             punt2 = p2;
-            lijn = pen;
+            kleur = k;
+            dikte = d;
         }
 
         public override void Teken(Graphics g)
         {
-            g.DrawLine(lijn, punt1, punt2);
+            g.DrawLine(new Pen(kleur, dikte), punt1, punt2);
         }
 
         public override bool IsGeraakt(Point p)
@@ -93,19 +98,20 @@ namespace SchetsEditor
     }
 
     [Serializable()]
-    public class OmlijndRechthoek : RechthoekigItem
+    public class Rechthoek : RechthoekigItem
     {
-        public Pen lijn { get; protected set; }
+        private int dikte;
 
-        public OmlijndRechthoek(Rectangle rect, Pen pen)
+        public Rechthoek(Rectangle rect, Color k, int d)
         {
             rechthoek = rect;
-            lijn = pen;
+            kleur = k;
+            dikte = d;
         }
 
         public override void Teken(Graphics g)
         {
-            g.DrawRectangle(lijn, rechthoek);
+            g.DrawRectangle(new Pen(kleur, dikte), rechthoek);
         }
 
         public override bool IsGeraakt(Point p)
@@ -129,19 +135,17 @@ namespace SchetsEditor
     }
 
     [Serializable()]
-    public class GevuldRechthoek : RechthoekigItem
+    public class VolRechthoek : RechthoekigItem
     {
-        public Brush vulling { get; protected set; }
-
-        public GevuldRechthoek(Rectangle rect, Brush brush)
+        public VolRechthoek(Rectangle rect, Color k)
         {
             rechthoek = rect;
-            vulling = brush;
+            kleur = k;
         }
 
         public override void Teken(Graphics g)
         {
-            g.FillRectangle(vulling, rechthoek);
+            g.FillRectangle(new SolidBrush(kleur), rechthoek);
         }
 
         public override bool IsGeraakt(Point p)
@@ -151,19 +155,20 @@ namespace SchetsEditor
     }
 
     [Serializable()]
-    public class OmlijndOvaal : OvaalItem
+    public class Ellips : EllipsvormigItem
     {
-        public Pen lijn { get; protected set; }
+        private int dikte;
 
-        public OmlijndOvaal(Rectangle rect, Pen pen)
+        public Ellips(Rectangle rect, Color k, int d)
         {
             ovaal = rect;
-            lijn = pen;
+            kleur = k;
+            dikte = d;
         }
 
         public override void Teken(Graphics g)
         {
-            g.DrawEllipse(lijn, ovaal);
+            g.DrawEllipse(new Pen(kleur, dikte), ovaal);
         }
 
         public override bool IsGeraakt(Point p)
@@ -182,19 +187,17 @@ namespace SchetsEditor
     }
 
     [Serializable()]
-    public class GevuldOvaal : OvaalItem
+    public class VolEllips : EllipsvormigItem
     {
-        public Brush vulling { get; protected set; }
-
-        public GevuldOvaal(Rectangle rect, Brush brush)
+        public VolEllips(Rectangle rect, Color k)
         {
             ovaal = rect;
-            vulling = brush;
+            kleur = k;
         }
 
         public override void Teken(Graphics g)
         {
-            g.FillEllipse(vulling, ovaal);
+            g.FillEllipse(new SolidBrush(kleur), ovaal);
         }
 
         public override bool IsGeraakt(Point p)
@@ -208,17 +211,8 @@ namespace SchetsEditor
     {
         private LinkedList<Lijn> subLijnen = new LinkedList<Lijn>();
 
-        public Point? LaatstePunt
-        {
-            get
-            {
-                return (subLijnen.Count > 0) ? subLijnen.Last.Value.punt2 : (Point?)null;
-            }
-        }
-
-        public GetekendeLijn(LinkedList<Lijn> lijntjes)
-        {
-            subLijnen = lijntjes;
+        public Point? LaatstePunt {
+            get { return (subLijnen.Count > 0) ? subLijnen.Last.Value.punt2 : (Point?)null; }
         }
 
         public GetekendeLijn()
@@ -261,15 +255,14 @@ namespace SchetsEditor
     public class Letter : RechthoekigItem
     {
         private string tekst;
-        private Brush vulling;
         private int draaihoek;
 
         public static Font Lettertype = new Font("Tahoma", 40);
 
-        public Letter(char karakter, Point punt, Color kleur, SizeF kGrootte)
+        public Letter(char karakter, Point punt, Color k, SizeF kGrootte)
         {
             tekst = karakter.ToString();
-            vulling = new SolidBrush(kleur);
+            kleur = k;
             draaihoek = 0;
 
             // Sla rechthoek om letter op.
@@ -285,7 +278,7 @@ namespace SchetsEditor
 
             g.DrawString(tekst,
                          Lettertype,
-                         vulling,
+                         new SolidBrush(kleur),
                          0, 0,
                          StringFormat.GenericTypographic);
 

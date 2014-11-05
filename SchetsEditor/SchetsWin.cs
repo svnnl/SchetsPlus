@@ -125,7 +125,7 @@ namespace SchetsEditor
                                     , new TekstTool ()
                                     , new GumTool ()
                                     , new EllipsTool ()
-                                    , new VulEllipsTool ()
+                                    , new VolEllipsTool ()
 			};
 
 			String[] deKleuren = { "Black", "Red", "Green", "Blue"
@@ -133,7 +133,7 @@ namespace SchetsEditor
                                  , "Orange"
 			};
 
-			this.ClientSize = new Size (700, 500);
+			this.ClientSize = new Size (800, 600);
 			huidigeTool = deTools [0];
 
 			schetsControl = new SchetsControl ();
@@ -255,7 +255,7 @@ namespace SchetsEditor
 			paneel.Controls.Add (b);
             
 			b = new Button (); 
-			b.Text = "Rotate"; 
+			b.Text = "Roteer"; 
 			b.Location = new Point (80, 0); 
 			b.Click += schetsControl.Roteer; 
 			paneel.Controls.Add (b);

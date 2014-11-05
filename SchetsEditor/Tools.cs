@@ -14,12 +14,14 @@ namespace SchetsEditor
 
     public abstract class StartpuntTool : ISchetsTool
     {
+        protected Color overlayKleur = Color.Gray;
+
         protected Point startpunt;
         protected Color kleur;
 
         // Bepaalt de dikte van de lijnen, ook voor
         // alle omlijnde items.
-        protected float lijnDikte;
+        protected int lijnDikte;
 
         public virtual void MuisVast(SchetsControl s, Point p)
         {
@@ -34,12 +36,6 @@ namespace SchetsEditor
         public abstract void MuisDrag(SchetsControl s, Point p);
 
         public abstract void Letter(SchetsControl s, char c);
-
-        protected Pen MaakPen() { return new Pen(kleur, lijnDikte); }
-
-        protected Brush MaakBrush() { return new SolidBrush(kleur); }
-
-        protected Pen MaakOverlayPen() { return new Pen(Color.Gray, 1.0f); }
     }
 
     public class TekstTool : StartpuntTool
@@ -113,7 +109,7 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            OmlijndRechthoek rechthoek = new OmlijndRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakOverlayPen());
+            Rechthoek rechthoek = new Rechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), overlayKleur, lijnDikte);
             schets.ZetOverlayItem(rechthoek);
         }
 
@@ -121,7 +117,7 @@ namespace SchetsEditor
         {
             base.Compleet(schets, p1, p2);
 
-            OmlijndRechthoek rechthoek = new OmlijndRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakPen());
+            Rechthoek rechthoek = new Rechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), kleur, lijnDikte);
             schets.VoegSchetsbaarItemToe(rechthoek);
         }
     }
@@ -135,7 +131,7 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            OmlijndOvaal ovaal = new OmlijndOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakOverlayPen());
+            Ellips ovaal = new Ellips(Wiskunde.MaakRectangleVanPunten(p1, p2), overlayKleur, lijnDikte);
             schets.ZetOverlayItem(ovaal);
         }
 
@@ -143,7 +139,7 @@ namespace SchetsEditor
         {
             base.Compleet(schets, p1, p2);
 
-            OmlijndOvaal ovaal = new OmlijndOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakPen());
+            Ellips ovaal = new Ellips(Wiskunde.MaakRectangleVanPunten(p1, p2), kleur, lijnDikte);
             schets.VoegSchetsbaarItemToe(ovaal);
         }
     }
@@ -157,7 +153,7 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            OmlijndRechthoek rechthoek = new OmlijndRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakOverlayPen());
+            Rechthoek rechthoek = new Rechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), overlayKleur, lijnDikte);
             schets.ZetOverlayItem(rechthoek);
         }
 
@@ -165,12 +161,12 @@ namespace SchetsEditor
         {
             base.Compleet(schets, p1, p2);
 
-            GevuldRechthoek rechthoek = new GevuldRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakBrush());
+            VolRechthoek rechthoek = new VolRechthoek(Wiskunde.MaakRectangleVanPunten(p1, p2), kleur);
             schets.VoegSchetsbaarItemToe(rechthoek);
         }
     }
 
-    public class VulEllipsTool : TweepuntTool
+    public class VolEllipsTool : TweepuntTool
     {
         public override string ToString()
         {
@@ -179,7 +175,7 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            OmlijndOvaal ovaal = new OmlijndOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakOverlayPen());
+            Ellips ovaal = new Ellips(Wiskunde.MaakRectangleVanPunten(p1, p2), overlayKleur, lijnDikte);
             schets.ZetOverlayItem(ovaal);
         }
 
@@ -187,7 +183,7 @@ namespace SchetsEditor
         {
             base.Compleet(schets, p1, p2);
 
-            GevuldOvaal ovaal = new GevuldOvaal(Wiskunde.MaakRectangleVanPunten(p1, p2), MaakBrush());
+            VolEllips ovaal = new VolEllips(Wiskunde.MaakRectangleVanPunten(p1, p2), kleur);
             schets.VoegSchetsbaarItemToe(ovaal);
         }
     }
@@ -201,7 +197,7 @@ namespace SchetsEditor
 
         public override void Bezig(Schets schets, Point p1, Point p2)
         {
-            Lijn lijn = new Lijn(p1, p2, MaakOverlayPen());
+            Lijn lijn = new Lijn(p1, p2, overlayKleur, lijnDikte);
             schets.ZetOverlayItem(lijn);
         }
 
@@ -209,11 +205,11 @@ namespace SchetsEditor
         {
             base.Compleet(schets, p1, p2);
 
-            // Kies linker punt als punt 1!
+            // Kies linker punt als punt 1
             Point np1 = (Math.Min(p1.X, p2.X) == p1.X) ? p1 : p2;
             Point np2 = (np1 == p1) ? p2 : p1;
 
-            Lijn lijn = new Lijn(np1, np2, MaakPen());
+            Lijn lijn = new Lijn(np1, np2, kleur, lijnDikte);
             schets.VoegSchetsbaarItemToe(lijn);
         }
     }
@@ -238,7 +234,7 @@ namespace SchetsEditor
              * ook zien op de overlay, maar voeg hem nog niet echt toe aan de schets */
 
             Point laatstePunt = lijnTotNu.LaatstePunt.HasValue ? (Point)lijnTotNu.LaatstePunt : p1;
-            Lijn subLijn = new Lijn(laatstePunt, p2, MaakPen()); // Er is geen overlay voor dit item
+            Lijn subLijn = new Lijn(laatstePunt, p2, kleur, lijnDikte); // Er is geen overlay voor dit item
 
             lijnTotNu.VoegLijntjeToe(subLijn);
 
@@ -270,7 +266,7 @@ namespace SchetsEditor
 
             Rectangle rechthoekOmOvaal = Wiskunde.MaakRectangleVanPunten(pLinksBoven, pRechtsOnder);
 
-            OmlijndOvaal ovaal = new OmlijndOvaal(rechthoekOmOvaal, MaakOverlayPen());
+            Ellips ovaal = new Ellips(rechthoekOmOvaal, overlayKleur, lijnDikte);
 
             schets.ZetOverlayItem(ovaal); // Rondje op de plek van de gum
             schets.VerwijderSchetsbaarItemOpPunt(p2);
