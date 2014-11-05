@@ -10,6 +10,7 @@ namespace SchetsEditor
      *             vooral bij de items OmlijndRechthoek en OmlijndOvaal.
      */
 
+    [Serializable()]
     public abstract class SchetsbaarItem
     {
         // Marge die wordt aangehouden voor omlijnde items,
@@ -27,7 +28,7 @@ namespace SchetsEditor
         // implementeerd zodat die een bool teruggeeft die
         // aangeeft of het gegeven punt 'raak' is.
         //
-        public abstract bool IsGeklikt(Point klik);
+        public abstract bool IsGeraakt(Point p);
 
         // Deze functie zorgt ervoor dat het item 90 graden
         // naar rechts wordt gedraaid.
@@ -35,6 +36,7 @@ namespace SchetsEditor
         public abstract void Draai();
     }
 
+    [Serializable()]
     public abstract class RechthoekigItem : SchetsbaarItem
     {
         public Rectangle rechthoek { get; protected set; }
@@ -45,6 +47,7 @@ namespace SchetsEditor
         }
     }
 
+    [Serializable()]
     public abstract class OvaalItem : SchetsbaarItem
     {
         public Rectangle ovaal { get; protected set; }
@@ -55,6 +58,7 @@ namespace SchetsEditor
         }
     }
 
+    [Serializable()]
     public class Lijn : SchetsbaarItem
     {
         public Pen lijn { get; protected set; }
@@ -74,11 +78,11 @@ namespace SchetsEditor
             g.DrawLine(lijn, punt1, punt2);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
             // Als de afstand van klik tot de lijn lager
             // is dan de klikmarge --> raak!
-            return (Wiskunde.AfstandLijnTotPunt(punt1, punt2, klik) < KlikMarge);
+            return (Wiskunde.AfstandLijnTotPunt(punt1, punt2, p) < KlikMarge);
         }
 
         public override void Draai()
@@ -89,6 +93,7 @@ namespace SchetsEditor
         }
     }
 
+    [Serializable()]
     public class OmlijndRechthoek : RechthoekigItem
     {
         public Pen lijn { get; protected set; }
@@ -104,7 +109,7 @@ namespace SchetsEditor
             g.DrawRectangle(lijn, rechthoek);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
             // Om dit te berekenen gebruiken we de volgende methode:
             // We gebruiken twee extra rechthoeken, waarvan:
@@ -119,11 +124,12 @@ namespace SchetsEditor
             Rectangle groter = Wiskunde.VergrootRechthoek(rechthoek, KlikMarge);
             Rectangle kleiner = Wiskunde.VergrootRechthoek(rechthoek, -KlikMarge);
 
-            return (Wiskunde.IsPuntInRechthoek(klik, groter) &&
-                    !Wiskunde.IsPuntInRechthoek(klik, kleiner));
+            return (Wiskunde.IsPuntInRechthoek(p, groter) &&
+                    !Wiskunde.IsPuntInRechthoek(p, kleiner));
         }
     }
 
+    [Serializable()]
     public class GevuldRechthoek : RechthoekigItem
     {
         public Brush vulling { get; protected set; }
@@ -139,12 +145,13 @@ namespace SchetsEditor
             g.FillRectangle(vulling, rechthoek);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
-            return Wiskunde.IsPuntInRechthoek(klik, rechthoek);
+            return Wiskunde.IsPuntInRechthoek(p, rechthoek);
         }
     }
 
+    [Serializable()]
     public class OmlijndOvaal : OvaalItem
     {
         public Pen lijn { get; protected set; }
@@ -160,7 +167,7 @@ namespace SchetsEditor
             g.DrawEllipse(lijn, ovaal);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
             // Om dit te berekenen gebruiken we de volgende methode:
             // We gebruiken twee extra ovalen, waarvan:
@@ -175,11 +182,12 @@ namespace SchetsEditor
             Rectangle groter = Wiskunde.VergrootRechthoek(ovaal, KlikMarge);
             Rectangle kleiner = Wiskunde.VergrootRechthoek(ovaal, -KlikMarge);
 
-            return (Wiskunde.IsPuntInOvaal(klik, groter) &&
-                    !Wiskunde.IsPuntInOvaal(klik, kleiner));
+            return (Wiskunde.IsPuntInOvaal(p, groter) &&
+                    !Wiskunde.IsPuntInOvaal(p, kleiner));
         }
     }
 
+    [Serializable()]
     public class GevuldOvaal : OvaalItem
     {
         public Brush vulling { get; protected set; }
@@ -195,12 +203,13 @@ namespace SchetsEditor
             g.FillEllipse(vulling, ovaal);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
-            return Wiskunde.IsPuntInOvaal(klik, ovaal);
+            return Wiskunde.IsPuntInOvaal(p, ovaal);
         }
     }
 
+    [Serializable()]
     public class GetekendeLijn : SchetsbaarItem
     {
         private LinkedList<Lijn> subLijnen = new LinkedList<Lijn>();
@@ -234,13 +243,13 @@ namespace SchetsEditor
                 l.Teken(g);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
             // Als een van de subLijnen is geklikt, zijn
             // ze allemaal geklikt.
             foreach (Lijn l in subLijnen)
             {
-                if (l.IsGeklikt(klik))
+                if (l.IsGeraakt(p))
                     return true;
             }
 
@@ -254,6 +263,7 @@ namespace SchetsEditor
         }
     }
 
+    [Serializable()]
     public class Letter : RechthoekigItem
     {
         private string tekst;
@@ -282,9 +292,9 @@ namespace SchetsEditor
             g.DrawRectangle(Pens.Gray, rechthoek);
         }
 
-        public override bool IsGeklikt(Point klik)
+        public override bool IsGeraakt(Point p)
         {
-            return Wiskunde.IsPuntInRechthoek(klik, rechthoek);
+            return Wiskunde.IsPuntInRechthoek(p, rechthoek);
         }
 
         public override void Draai()

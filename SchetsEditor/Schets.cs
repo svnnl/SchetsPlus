@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SchetsEditor
 {
@@ -32,7 +34,7 @@ namespace SchetsEditor
         {
             for (int i = items.Count - 1; i >= 0; i--)
             {
-                if (items[i].IsGeklikt(p))
+                if (items[i].IsGeraakt(p))
                 {
                     items.RemoveAt(i);
 
@@ -46,6 +48,17 @@ namespace SchetsEditor
         public void ZetOverlayItem(SchetsbaarItem item)
         {
             overlay = item;
+        }
+
+        public void OpslaanAls(string bestandsnaam)
+        {
+            Stream uitStream = File.OpenWrite(bestandsnaam);
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            foreach (SchetsbaarItem item in items)
+                formatter.Serialize(uitStream, item);
+
+            uitStream.Close();
         }
 
         public void VeranderAfmeting(Size sz)
